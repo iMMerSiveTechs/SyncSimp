@@ -454,8 +454,8 @@ All products are now properly configured in both RevenueCat and App Store Connec
 
 SyncSimp App includes a complete RevenueCat SDK integration with:
 
-- ✅ **API Key Configured:** `appl_YacpNBNYtMrzFUuTRqKbBshcPsD`
-- ✅ **Project Created:** `SyncSimp App` (proj56713104)
+- ✅ **API Key Configured:** Set via `EXPO_PUBLIC_VIBECODE_REVENUECAT_APPLE_KEY` env var
+- ✅ **Project Created:** Set via RevenueCat dashboard
 - ✅ **Native Paywall UI:** Pre-built RevenueCat paywall component
 - ✅ **Customer Center:** Subscription management interface
 - ✅ **Helper Functions:** Easy-to-use SDK wrappers for all features

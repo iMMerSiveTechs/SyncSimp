@@ -5,12 +5,12 @@
 
 console.log("🧪 Testing Production Readiness...\n");
 
-// Simulate production environment (no Vibecode variables)
+// Simulate production environment - values loaded from env vars
 const mockEnv = {
   // These would be injected by Vibecode's publish system
-  EXPO_PUBLIC_VIBECODE_BACKEND_URL: "https://preview-admqcygyaadl.share.sandbox.dev",
-  EXPO_PUBLIC_VIBECODE_PROJECT_ID: "syncsimp-production",
-  EXPO_PUBLIC_VIBECODE_REVENUECAT_APPLE_KEY: "appl_qraYDTGmDKWKjigHbJpaHctWGwb",
+  EXPO_PUBLIC_VIBECODE_BACKEND_URL: process.env.EXPO_PUBLIC_VIBECODE_BACKEND_URL || "<your-backend-url>",
+  EXPO_PUBLIC_VIBECODE_PROJECT_ID: process.env.EXPO_PUBLIC_VIBECODE_PROJECT_ID || "<your-project-id>",
+  EXPO_PUBLIC_VIBECODE_REVENUECAT_APPLE_KEY: process.env.EXPO_PUBLIC_VIBECODE_REVENUECAT_APPLE_KEY || "<your-revenuecat-key>",
 };
 
 // Test 1: Check if backend URL is defined
