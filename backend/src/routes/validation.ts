@@ -1,5 +1,7 @@
 import { Hono } from 'hono';
 import jwt from 'jsonwebtoken';
+import { zValidator } from '@hono/zod-validator';
+import { validationCheckRequestSchema } from '../../../src/shared/contracts';
 import {
   checkRevenueCatCredentials,
   checkIAPKeyPresent,
@@ -139,30 +141,14 @@ async function checkAgreements(issuerId: string, keyId: string, privateKey: stri
 // POST /api/validation/check/:projectId - Run validation checks for a project
 // Note: This endpoint validates external credentials (Apple/RevenueCat) using data sent from Firebase
 // Authentication is handled by Firebase on the frontend - the project data is passed in the request body
-validation.post('/check/:projectId', async (c) => {
+validation.post('/check/:projectId', zValidator('json', validationCheckRequestSchema, (result, c) => {
+  if (!result.success) {
+    console.log('[Validation] Request body validation failed:', result.error.issues.map(i => i.message).join(', '));
+    return c.json({ error: 'Invalid request body', details: result.error.issues.map(i => i.message) }, 400);
+  }
+}), async (c) => {
   const { projectId } = c.req.param();
-
-  // Get project data from request body (sent from frontend which reads from Firebase)
-  // Firebase handles authentication on the frontend, so we trust the project data sent
-  let project: any;
-  try {
-    const body = await c.req.json();
-    project = body.project;
-
-    if (!project) {
-      console.log('[Validation] No project data in request body');
-      return c.json({ error: 'Project data is required in request body' }, 400);
-    }
-
-    console.log('[Validation] Received project data from Firebase for validation');
-  } catch (err) {
-    console.log('[Validation] Failed to parse request body:', err);
-    return c.json({ error: 'Invalid request body - project data required' }, 400);
-  }
-
-  if (!project) {
-    return c.json({ error: 'Project not found' }, 404);
-  }
+  const { project } = c.req.valid('json');
 
   const result: CheckResult = {
     apple: {

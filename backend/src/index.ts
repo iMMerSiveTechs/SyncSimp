@@ -5,6 +5,7 @@ import { logger } from "hono/logger";
 import { serveStatic } from "@hono/node-server/serve-static";
 
 import { env } from "./env";
+import { rateLimiter } from "./middleware/rateLimiter";
 import { uploadRouter } from "./routes/upload";
 import { sampleRouter } from "./routes/sample";
 import validationRouter from "./routes/validation";
@@ -64,17 +65,22 @@ app.onError((err, c) => {
   return c.json({ error: isProduction ? 'Internal server error' : err.message }, 500);
 });
 
+// Rate limiting for sensitive endpoints
+app.use("/api/validation/*", rateLimiter({ windowMs: 60_000, maxRequests: 10, message: "Too many validation requests. Please wait a minute." }));
+app.use("/api/sync/*", rateLimiter({ windowMs: 60_000, maxRequests: 5, message: "Too many sync requests. Please wait a minute." }));
+app.use("/api/upload/*", rateLimiter({ windowMs: 60_000, maxRequests: 20, message: "Too many upload requests. Please wait a minute." }));
+
 // Mount route modules
-console.log("📤 Mounting upload routes at /api/upload");
+console.log("Mounting upload routes at /api/upload");
 app.route("/api/upload", uploadRouter);
 
-console.log("📝 Mounting sample routes at /api/sample");
+console.log("Mounting sample routes at /api/sample");
 app.route("/api/sample", sampleRouter);
 
-console.log("✅ Mounting validation routes at /api/validation");
+console.log("Mounting validation routes at /api/validation");
 app.route("/api/validation", validationRouter);
 
-console.log("🔄 Mounting sync routes at /api/sync");
+console.log("Mounting sync routes at /api/sync");
 app.route("/api/sync", syncRouter);
 
 console.log("🛠️  Mounting dev routes at /api/dev");

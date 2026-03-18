@@ -1,6 +1,8 @@
 import { Hono } from 'hono';
 import jwt from 'jsonwebtoken';
 import * as yaml from 'js-yaml';
+import { zValidator } from '@hono/zod-validator';
+import { syncRunRequestSchema } from '../../../src/shared/contracts';
 import {
   ensureSubscriptionGroup,
   ensureIAP,
@@ -164,38 +166,29 @@ function createAppleCredentials(issuerId: string, keyId: string, privateKey: str
 
 // POST /api/sync/run/:projectId - Run sync for a project
 // Note: Authentication is handled by Firebase on the frontend - project data is passed in request body
-sync.post('/run/:projectId', async (c) => {
+sync.post('/run/:projectId', zValidator('json', syncRunRequestSchema, (result, c) => {
+  if (!result.success) {
+    const issues = result.error.issues.map(i => `${i.path.join('.')}: ${i.message}`);
+    console.log('[Sync] Request validation failed:', issues.join(', '));
+    return c.json({
+      error: 'Invalid request body',
+      fix: {
+        title: 'Missing Required Fields',
+        steps: issues.map(i => `Fix: ${i}`),
+        estimatedTime: '5 minutes'
+      }
+    }, 400);
+  }
+}), async (c) => {
   const { projectId } = c.req.param();
+  const { project } = c.req.valid('json') as any;
 
   console.log('[Sync] ============================================');
   console.log('[Sync] SYNC STARTED');
   console.log('[Sync] Project ID:', projectId);
+  console.log('[Sync] Project name:', project.name);
+  console.log('[Sync] Bundle ID:', project.bundleId);
   console.log('[Sync] ============================================');
-
-  // Get project data from request body (sent from frontend which reads from Firebase)
-  let project: any;
-  try {
-    const body = await c.req.json();
-    project = body.project;
-
-    if (!project) {
-      console.log('[Sync] No project data in request body');
-      return c.json({
-        error: 'Project data is required in request body',
-        fix: {
-          title: 'Internal Error',
-          steps: ['This is a bug. Please try refreshing the app and running sync again.'],
-          estimatedTime: '1 minute'
-        }
-      }, 400);
-    }
-
-    console.log('[Sync] Project name:', project.name);
-    console.log('[Sync] Bundle ID:', project.bundleId);
-  } catch (err) {
-    console.log('[Sync] Failed to parse request body:', err);
-    return c.json({ error: 'Invalid request body - project data required' }, 400);
-  }
 
   // Check if user has premium entitlement via RevenueCat
   const revenueCatApiKey = process.env.EXPO_PUBLIC_VIBECODE_REVENUECAT_APPLE_KEY || process.env.EXPO_PUBLIC_VIBECODE_REVENUECAT_TEST_KEY;
@@ -252,91 +245,7 @@ sync.post('/run/:projectId', async (c) => {
     console.log('[Sync] RevenueCat not configured or no user ID, allowing sync');
   }
 
-  // Check credentials
-  if (!project.appleIssuerId || !project.appleKeyId || !project.appleP8FileContent) {
-    console.log('[Sync] Missing Apple credentials');
-    console.log('[Sync]   - Issuer ID:', project.appleIssuerId ? 'Present' : 'MISSING');
-    console.log('[Sync]   - Key ID:', project.appleKeyId ? 'Present' : 'MISSING');
-    console.log('[Sync]   - P8 File:', project.appleP8FileContent ? `Present (${project.appleP8FileContent.length} chars)` : 'MISSING');
-
-    return c.json({
-      error: 'Missing Apple credentials',
-      fix: {
-        title: 'Add Apple Credentials (Step 1)',
-        steps: [
-          'Go back to Step 1: Credentials',
-          'Enter your Apple Issuer ID (from App Store Connect > Users & Access > Keys)',
-          'Enter your Apple Key ID (10-character code)',
-          'Upload your P8 file (the private key file you downloaded)',
-          'Make sure the API key has "App Manager" permission',
-          'Save and return to Step 4'
-        ],
-        estimatedTime: '5 minutes'
-      }
-    }, 400);
-  }
-
-  // Validate P8 file format
-  if (project.appleP8FileContent.length < 200) {
-    console.log('[Sync] P8 file appears too short:', project.appleP8FileContent.length, 'characters');
-    return c.json({
-      error: 'P8 file appears to be invalid or corrupted',
-      fix: {
-        title: 'Re-upload P8 File',
-        steps: [
-          'Go back to Step 1: Credentials',
-          'Your P8 file appears to be corrupted or incomplete',
-          'Go to App Store Connect > Users & Access > Keys',
-          'Download a fresh copy of your P8 file (or create a new API key)',
-          'Upload the new P8 file in SyncSimp',
-          'The file should be ~300+ characters and start with "-----BEGIN PRIVATE KEY-----"'
-        ],
-        estimatedTime: '5 minutes'
-      }
-    }, 400);
-  }
-
-  if (!project.revenueCatApiKey || !project.revenueCatProjectId || !project.revenueCatIosAppId) {
-    console.log('[Sync] Missing RevenueCat credentials');
-    console.log('[Sync]   - API Key:', project.revenueCatApiKey ? 'Present' : 'MISSING');
-    console.log('[Sync]   - Project ID:', project.revenueCatProjectId ? 'Present' : 'MISSING');
-    console.log('[Sync]   - iOS App ID:', project.revenueCatIosAppId ? 'Present' : 'MISSING');
-
-    return c.json({
-      error: 'Missing RevenueCat credentials',
-      fix: {
-        title: 'Add RevenueCat Credentials (Step 1 & 2)',
-        steps: [
-          'Go to app.revenuecat.com and select your project',
-          'Get SECRET API Key: Project Settings (gear icon) > API Keys > "Secret API keys" section > + New secret API key > Read & Write access > copy sk_xxx key',
-          'Get Project ID: Click gear icon next to project name > copy "Project ID: proj_xxxxx"',
-          'Get iOS App ID: Apps (left sidebar) > click your iOS app > copy "App ID: app_xxxxx"',
-          'Enter all three values in SyncSimp Step 1 and Step 2',
-          'IMPORTANT: Use the sk_xxx secret key, NOT the appl_xxx public key'
-        ],
-        estimatedTime: '5 minutes'
-      }
-    }, 400);
-  }
-
-  if (!project.configYaml) {
-    return c.json({
-      error: 'Missing YAML configuration',
-      fix: {
-        title: 'Configure Products (Step 2)',
-        steps: [
-          'Go to Step 2: Configure Products',
-          'Add at least one subscription product',
-          'Enter product name, price, and trial days (optional)',
-          'Save the configuration',
-          'Return to Step 4 and run sync'
-        ],
-        estimatedTime: '3 minutes'
-      }
-    }, 400);
-  }
-
-  // Parse config
+  // Parse config (input already validated by zValidator)
   let config: SyncConfig;
   try {
     config = yaml.load(project.configYaml) as SyncConfig;
