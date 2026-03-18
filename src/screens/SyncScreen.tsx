@@ -164,7 +164,7 @@ const SyncScreen = ({ navigation, route }: Props) => {
 
   // Fetch project from Firebase
   const { data: projectData, isLoading: isLoadingProject } = useQuery({
-    queryKey: ["project", projectId],
+    queryKey: ["project", projectId, userId],
     queryFn: async () => {
       if (!userId) throw new Error("Not logged in");
       const project = await getProject(projectId, userId);
@@ -297,10 +297,10 @@ const SyncScreen = ({ navigation, route }: Props) => {
         // Update lastSyncAt in Firebase and clear any previous error
         try {
           await updateProject(projectId, userId, {
-            lastSyncAt: serverTimestamp(),
+            lastSyncAt: serverTimestamp() as any,
             syncStatus: "success",
             lastSyncError: null,
-          } as unknown as Partial<Project>);
+          } as Partial<Project>);
           queryClient.invalidateQueries({ queryKey: ["project", projectId] });
         } catch (updateError) {
           console.log("[Sync] Failed to update lastSyncAt:", updateError);

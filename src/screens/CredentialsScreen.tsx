@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from "react-native";
 import type { RootStackScreenProps } from "@/navigation/types";
 import { getProject, updateProject, type Project } from "@/lib/firebase";
@@ -30,14 +30,14 @@ const CredentialsScreen = ({ navigation, route }: Props) => {
 
   // Fetch existing credentials from Firebase
   const { data: projectData, isLoading } = useQuery({
-    queryKey: ["project", projectId],
+    queryKey: ["project", projectId, userId],
     queryFn: async () => {
       if (!userId) throw new Error("Not logged in");
       const project = await getProject(projectId, userId);
       return project;
     },
     enabled: !!userId,
-    staleTime: Infinity, // Don't auto-refetch
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Auto-save mutation (silent, no alerts)
@@ -45,13 +45,7 @@ const CredentialsScreen = ({ navigation, route }: Props) => {
     mutationFn: async (values: { appleIssuerId: string; appleKeyId: string; appleP8FileContent: string; revenueCatApiKey: string }) => {
       if (!userId) throw new Error("Not logged in");
 
-      console.log("[Credentials] ============================================");
-      console.log("[Credentials] AUTO-SAVING CREDENTIALS");
-      console.log("[Credentials] Apple Issuer ID:", values.appleIssuerId ? "✓ Provided" : "✗ Missing");
-      console.log("[Credentials] Apple Key ID:", values.appleKeyId ? "✓ Provided" : "✗ Missing");
-      console.log("[Credentials] P8 File Content:", values.appleP8FileContent ? `✓ Provided (${values.appleP8FileContent.length} chars)` : "✗ Missing");
-      console.log("[Credentials] RevenueCat API Key:", values.revenueCatApiKey ? "✓ Provided" : "✗ Missing");
-      console.log("[Credentials] ============================================");
+      console.log("[Credentials] Auto-saving credentials...");
 
       const result = await updateProject(projectId, userId, {
         appleIssuerId: values.appleIssuerId || null,
@@ -82,9 +76,7 @@ const CredentialsScreen = ({ navigation, route }: Props) => {
     mutationFn: async () => {
       if (!userId) throw new Error("Not logged in");
 
-      console.log("[Credentials] ============================================");
-      console.log("[Credentials] MANUAL SAVE");
-      console.log("[Credentials] ============================================");
+      console.log("[Credentials] Manual save initiated");
 
       const result = await updateProject(projectId, userId, {
         appleIssuerId: appleIssuerId.trim() || null,
@@ -186,7 +178,7 @@ const CredentialsScreen = ({ navigation, route }: Props) => {
     try {
       console.log("[Credentials] Opening P8 file picker...");
       const result = await DocumentPicker.getDocumentAsync({
-        type: '*/*',
+        type: ['application/octet-stream', 'application/x-pem-file', 'text/plain', '*/*'],
         copyToCacheDirectory: true,
       });
 
@@ -198,9 +190,15 @@ const CredentialsScreen = ({ navigation, route }: Props) => {
         const response = await fetch(file.uri);
         const text = await response.text();
 
-        console.log("[Credentials] ✓ P8 file loaded successfully, size:", text.length, "characters");
+        // Validate P8 file content
+        if (!text.includes('-----BEGIN PRIVATE KEY-----')) {
+          Alert.alert("Invalid File", "This does not appear to be a valid .p8 private key file. The file should contain '-----BEGIN PRIVATE KEY-----'.");
+          return;
+        }
+
+        console.log("[Credentials] P8 file loaded successfully");
         setAppleP8FileContent(text);
-        setP8FileName(file.name || "✓ P8 key selected");
+        setP8FileName(file.name || "P8 key selected");
 
         // Auto-extract Key ID from filename (e.g., AuthKey_PYU9ZW4J5U.p8 -> PYU9ZW4J5U)
         const keyIdMatch = file.name.match(/AuthKey_([A-Z0-9]+)\.p8/i);

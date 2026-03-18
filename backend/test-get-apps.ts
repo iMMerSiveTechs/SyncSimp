@@ -1,5 +1,9 @@
-// Test fetching apps from the project
-const v2ApiKey = 'sk_MTvXDoCffgXEwxAfHiANUcQAeqMkc';
+// Test fetching apps from the project - load from environment
+const v2ApiKey = process.env.REVENUECAT_SECRET_KEY;
+if (!v2ApiKey) {
+  console.error('ERROR: Set REVENUECAT_SECRET_KEY environment variable');
+  process.exit(1);
+}
 const projectId = 'projf9634011';
 
 console.log('Fetching apps from project...\n');

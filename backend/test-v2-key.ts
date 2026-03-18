@@ -1,5 +1,9 @@
-// Test the V2 secret key
-const v2ApiKey = 'sk_MTvXDoCffgXEwxAfHiANUcQAeqMkc';
+// Test the V2 secret key - load from environment
+const v2ApiKey = process.env.REVENUECAT_SECRET_KEY;
+if (!v2ApiKey) {
+  console.error('ERROR: Set REVENUECAT_SECRET_KEY environment variable');
+  process.exit(1);
+}
 
 console.log('Testing RevenueCat API v2 with V2 secret key...\n');
 

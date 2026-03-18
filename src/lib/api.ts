@@ -12,7 +12,10 @@ import { fetch } from "expo/fetch";
 /**
  * Backend URL Configuration
  */
-const BACKEND_URL = process.env.EXPO_PUBLIC_VIBECODE_BACKEND_URL || "https://preview-lyzllzmvugbj.share.sandbox.dev";
+const BACKEND_URL = process.env.EXPO_PUBLIC_VIBECODE_BACKEND_URL || (() => {
+  console.warn("[api.ts] EXPO_PUBLIC_VIBECODE_BACKEND_URL is not set, using localhost fallback");
+  return "http://localhost:3000";
+})();
 
 /**
  * Check if the backend is available
@@ -43,7 +46,7 @@ const fetchFn = async <T>(path: string, options: FetchOptions): Promise<T> => {
   };
 
   const url = `${BACKEND_URL}${path}`;
-  console.log(`[api.ts] Making ${method} request to: ${url}`);
+  if (__DEV__) console.log(`[api.ts] Making ${method} request to: ${url}`);
 
   try {
     // Add timeout to prevent app from hanging on network issues
@@ -59,7 +62,7 @@ const fetchFn = async <T>(path: string, options: FetchOptions): Promise<T> => {
 
     clearTimeout(timeoutId);
 
-    console.log("[api.ts] Response status:", response.status);
+    if (__DEV__) console.log("[api.ts] Response status:", response.status);
 
     const responseText = await response.text();
 
@@ -83,7 +86,7 @@ const fetchFn = async <T>(path: string, options: FetchOptions): Promise<T> => {
       throw new Error(`[api.ts]: Invalid JSON response from ${path}`);
     }
   } catch (error: any) {
-    console.log(`[api.ts] Error:`, error?.message);
+    if (__DEV__) console.log(`[api.ts] Error:`, error?.message);
 
     // Handle timeout errors
     if (error.name === 'AbortError') {

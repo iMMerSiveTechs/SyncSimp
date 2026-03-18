@@ -62,7 +62,12 @@ uploadRouter.post("/image", zValidator("form", uploadImageRequestSchema), async 
     console.log(`✅ [Upload] File size validated: ${(image.size / 1024).toFixed(2)} KB`);
 
     // Generate unique filename to prevent collisions
-    const fileExtension = path.extname(image.name);
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+    const fileExtension = path.extname(image.name).toLowerCase();
+    if (!allowedExtensions.includes(fileExtension)) {
+      console.log(`[Upload] Invalid file extension: ${fileExtension}`);
+      return c.json({ error: "Invalid file extension. Only .jpg, .jpeg, .png, .gif, and .webp are allowed" }, 400);
+    }
     const uniqueFilename = `${randomUUID()}${fileExtension}`;
     const filePath = path.join(UPLOADS_DIR, uniqueFilename);
     console.log(`🔑 [Upload] Generated unique filename: ${uniqueFilename}`);

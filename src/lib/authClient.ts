@@ -7,7 +7,7 @@ import * as SecureStore from "expo-secure-store";
  * Backend URL for authentication
  * HARDCODED for production - the Vibecode sandbox URL is publicly accessible
  */
-const BACKEND_URL = process.env.EXPO_PUBLIC_VIBECODE_BACKEND_URL || "https://preview-lyzllzmvugbj.share.sandbox.dev";
+const BACKEND_URL = process.env.EXPO_PUBLIC_VIBECODE_BACKEND_URL || "http://localhost:3000";
 
 /**
  * Check if auth backend is available

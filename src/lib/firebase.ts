@@ -28,14 +28,14 @@ import {
 } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Firebase configuration from GoogleService-Info.plist
+// Firebase configuration - loaded from environment variables with fallback
 const firebaseConfig = {
-  apiKey: "AIzaSyCG5VfBc0RHlXHHtPJemL06FLiESb7RSAY",
-  authDomain: "syncsimp-12152025.firebaseapp.com",
-  projectId: "syncsimp-12152025",
-  storageBucket: "syncsimp-12152025.firebasestorage.app",
-  messagingSenderId: "918396216946",
-  appId: "1:918396216946:ios:3112fbef3c845dc18dc4eb",
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || "AIzaSyCG5VfBc0RHlXHHtPJemL06FLiESb7RSAY",
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || "syncsimp-12152025.firebaseapp.com",
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || "syncsimp-12152025",
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || "syncsimp-12152025.firebasestorage.app",
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "918396216946",
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || "1:918396216946:ios:3112fbef3c845dc18dc4eb",
 };
 
 // Initialize Firebase (only once)

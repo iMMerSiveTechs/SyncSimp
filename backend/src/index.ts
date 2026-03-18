@@ -19,32 +19,49 @@ const app = new Hono();
 console.log("🔧 Initializing Hono application...");
 app.use("*", logger());
 app.use("/*", cors({
-  origin: "*",
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || [
+    process.env.BACKEND_URL || "http://localhost:3000",
+    "http://localhost:8081",
+  ],
   credentials: true,
-  allowHeaders: ["Content-Type"],
+  allowHeaders: ["Content-Type", "Authorization"],
   allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
 }));
+
+// Security headers middleware
+app.use("*", async (c, next) => {
+  c.header('X-Content-Type-Options', 'nosniff');
+  c.header('X-Frame-Options', 'DENY');
+  c.header('X-XSS-Protection', '1; mode=block');
+  if (process.env.NODE_ENV === 'production') {
+    c.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
+  await next();
+});
 
 // Serve uploaded images statically
 // Files in uploads/ directory are accessible at /uploads/* URLs
 console.log("📁 Serving static files from uploads/ directory");
 app.use("/uploads/*", serveStatic({ root: "./" }));
 
-// Global error handler for validation errors
+// Global error handler
 app.onError((err, c) => {
-  console.error('[Global Error Handler] ============================================');
-  console.error('[Global Error Handler] Error caught:', err);
-  console.error('[Global Error Handler] Error name:', err.name);
-  console.error('[Global Error Handler] Error message:', err.message);
-  console.error('[Global Error Handler] Error stack:', err.stack);
-  console.error('[Global Error Handler] ============================================');
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  // Log safely - never log full error objects in production
+  if (isProduction) {
+    console.error('[Error]', err.name, '-', err.message);
+  } else {
+    console.error('[Error]', err.name, '-', err.message);
+    console.error('[Error Stack]', err.stack);
+  }
 
   // Check if it's a validation error from zod
   if (err.name === 'ZodError' || err.message.includes('ZodError')) {
-    return c.json({ error: 'Validation error', details: err.message }, 400);
+    return c.json({ error: 'Validation error', details: isProduction ? 'Invalid input' : err.message }, 400);
   }
 
-  return c.json({ error: 'Internal server error', details: err.message }, 500);
+  return c.json({ error: isProduction ? 'Internal server error' : err.message }, 500);
 });
 
 // Mount route modules

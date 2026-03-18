@@ -1,7 +1,11 @@
 import { PrismaClient } from './generated/prisma/index.js';
 
-// Your V2 secret API key
-const v2SecretKey = 'sk_MTvXDoCffgXEwxAfHiANUcQAeqMkc';
+// Load API key from environment variable - NEVER hardcode secrets
+const v2SecretKey = process.env.REVENUECAT_SECRET_KEY;
+if (!v2SecretKey) {
+  console.error('ERROR: Set REVENUECAT_SECRET_KEY environment variable');
+  process.exit(1);
+}
 
 async function updateWithV2Key() {
   const freshDb = new PrismaClient();

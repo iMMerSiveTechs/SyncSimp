@@ -639,7 +639,11 @@ sync.post('/run/:projectId', async (c) => {
       };
     }
 
-    return c.json({ success: false, error: error.message, steps }, hasError ? 400 : 500);
+    const isProduction = process.env.NODE_ENV === 'production';
+    const safeErrorMessage = isProduction
+      ? (hasError ? 'Sync failed due to configuration issue' : 'An internal error occurred during sync')
+      : (error.message || 'An error occurred');
+    return c.json({ success: false, error: safeErrorMessage, steps }, hasError ? 400 : 500);
   }
 });
 

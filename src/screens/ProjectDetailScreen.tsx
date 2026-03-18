@@ -22,7 +22,7 @@ const ProjectDetailScreen = ({ navigation, route }: Props) => {
 
   // Fetch project from Firebase
   const { data: project, isLoading } = useQuery({
-    queryKey: ["project", projectId],
+    queryKey: ["project", projectId, userId],
     queryFn: async () => {
       if (!userId) throw new Error("Not logged in");
       const projectData = await getProject(projectId, userId);
@@ -45,6 +45,7 @@ const ProjectDetailScreen = ({ navigation, route }: Props) => {
     onSuccess: () => {
       console.log("[ProjectDetail] Project deleted successfully");
       queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["project", projectId] });
       navigation.goBack();
     },
     onError: (error) => {

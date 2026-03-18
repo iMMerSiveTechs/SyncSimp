@@ -1,8 +1,21 @@
 import jwt from 'jsonwebtoken';
 import { readFileSync } from 'fs';
+import path from 'path';
 import type { SyncSimpCredentials } from './credentials.js';
 
 const ASC_BASE_URL = 'https://api.appstoreconnect.apple.com';
+
+/**
+ * Validate that a file path is safe (no path traversal)
+ */
+function validateFilePath(filePath: string): string {
+  const resolved = path.resolve(filePath);
+  // Block obvious traversal patterns
+  if (filePath.includes('..') && !resolved.startsWith(process.cwd())) {
+    throw new Error(`Invalid file path: path traversal detected in "${filePath}"`);
+  }
+  return resolved;
+}
 
 /**
  * Apple App Store Connect API Client
@@ -10,7 +23,8 @@ const ASC_BASE_URL = 'https://api.appstoreconnect.apple.com';
  */
 
 export function createAscToken(creds: SyncSimpCredentials['apple']): string {
-  const privateKey = readFileSync(creds.ascKeyPath, 'utf8');
+  const safePath = validateFilePath(creds.ascKeyPath);
+  const privateKey = readFileSync(safePath, 'utf8');
 
   const token = jwt.sign({}, privateKey, {
     algorithm: 'ES256',
