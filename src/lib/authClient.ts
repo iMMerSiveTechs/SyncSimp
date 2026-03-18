@@ -41,10 +41,10 @@ export const authClient = createAuthClient({
           const url = new URL(context.url);
           url.searchParams.set("_token", token);
           context.url = url.toString();
-          console.log("[authClient] Added token to request");
+          if (__DEV__) console.log("[authClient] Added token to request");
         }
       } catch (error) {
-        console.log("[authClient] Error adding token:", error);
+        if (__DEV__) console.log("[authClient] Error adding token:", error);
       }
     },
   },
