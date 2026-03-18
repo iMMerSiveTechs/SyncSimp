@@ -30,8 +30,13 @@ export const useFirebaseSession = () => {
 
       if (firebaseUser) {
         // Fetch user data from Firestore
-        const data = await getUserData(firebaseUser.uid);
-        setUserData(data);
+        try {
+          const data = await getUserData(firebaseUser.uid);
+          setUserData(data);
+        } catch (err) {
+          console.log("[useFirebaseSession] Failed to fetch user data:", err);
+          setUserData(null);
+        }
       } else {
         setUserData(null);
       }

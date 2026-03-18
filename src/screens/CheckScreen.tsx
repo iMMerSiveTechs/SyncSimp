@@ -33,7 +33,7 @@ const CheckScreen = ({ navigation, route }: Props) => {
 
   // Fetch project from Firebase
   const { data: projectData, isLoading: isLoadingProject } = useQuery({
-    queryKey: ["project", projectId],
+    queryKey: ["project", projectId, userId],
     queryFn: async () => {
       if (!userId) throw new Error("Not logged in");
       const project = await getProject(projectId, userId);

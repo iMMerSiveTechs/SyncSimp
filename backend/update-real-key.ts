@@ -1,7 +1,11 @@
 import { PrismaClient } from './generated/prisma/index.js';
 
-// Your real RevenueCat secret key
-const realSecretKey = 'sk_xsLvUNzfQAvMNcrCbSPyhPdYYVUQu';
+// Load API key from environment variable - NEVER hardcode secrets
+const realSecretKey = process.env.REVENUECAT_SECRET_KEY;
+if (!realSecretKey) {
+  console.error('ERROR: Set REVENUECAT_SECRET_KEY environment variable');
+  process.exit(1);
+}
 
 async function updateWithRealKey() {
   const freshDb = new PrismaClient();

@@ -7,7 +7,7 @@ import * as SecureStore from "expo-secure-store";
  * Backend URL for authentication
  * HARDCODED for production - the Vibecode sandbox URL is publicly accessible
  */
-const BACKEND_URL = process.env.EXPO_PUBLIC_VIBECODE_BACKEND_URL || "https://preview-lyzllzmvugbj.share.sandbox.dev";
+const BACKEND_URL = process.env.EXPO_PUBLIC_VIBECODE_BACKEND_URL || "http://localhost:3000";
 
 /**
  * Check if auth backend is available
@@ -41,10 +41,10 @@ export const authClient = createAuthClient({
           const url = new URL(context.url);
           url.searchParams.set("_token", token);
           context.url = url.toString();
-          console.log("[authClient] Added token to request");
+          if (__DEV__) console.log("[authClient] Added token to request");
         }
       } catch (error) {
-        console.log("[authClient] Error adding token:", error);
+        if (__DEV__) console.log("[authClient] Error adding token:", error);
       }
     },
   },

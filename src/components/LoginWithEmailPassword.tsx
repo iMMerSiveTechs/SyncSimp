@@ -39,7 +39,7 @@ export default function LoginWithEmailPassword() {
       }
     } catch (error) {
       Alert.alert("Error", "An unexpected error occurred");
-      console.error(error);
+      if (__DEV__) console.log("[Auth] Error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -51,8 +51,8 @@ export default function LoginWithEmailPassword() {
       return;
     }
 
-    if (password.length < 6) {
-      Alert.alert("Error", "Password must be at least 6 characters");
+    if (password.length < 8) {
+      Alert.alert("Error", "Password must be at least 8 characters");
       return;
     }
 
@@ -73,7 +73,7 @@ export default function LoginWithEmailPassword() {
       }
     } catch (error) {
       Alert.alert("Error", "An unexpected error occurred");
-      console.error(error);
+      if (__DEV__) console.log("[Auth] Error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -85,7 +85,7 @@ export default function LoginWithEmailPassword() {
       Alert.alert("Success", "Signed out successfully!");
     } catch (error) {
       Alert.alert("Error", "Failed to sign out");
-      console.error(error);
+      if (__DEV__) console.log("[Auth] Error:", error);
     }
   };
 

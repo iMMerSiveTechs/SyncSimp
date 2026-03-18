@@ -149,3 +149,33 @@ export const deleteProjectResponseSchema = z.object({
 });
 export type DeleteProjectResponse = z.infer<typeof deleteProjectResponseSchema>;
 
+// POST /api/validation/check/:projectId - Request body
+export const validationCheckRequestSchema = z.object({
+  project: z.object({
+    bundleId: z.string().min(1),
+    appleIssuerId: z.string().nullable().optional(),
+    appleKeyId: z.string().nullable().optional(),
+    appleP8FileContent: z.string().nullable().optional(),
+    revenueCatApiKey: z.string().nullable().optional(),
+    revenueCatIosAppId: z.string().nullable().optional(),
+  }).passthrough(), // Allow additional fields
+});
+export type ValidationCheckRequest = z.infer<typeof validationCheckRequestSchema>;
+
+// POST /api/sync/run/:projectId - Request body
+export const syncRunRequestSchema = z.object({
+  project: z.object({
+    userId: z.string().optional(),
+    name: z.string().optional(),
+    bundleId: z.string().min(1),
+    appleIssuerId: z.string().min(1, "Apple Issuer ID is required"),
+    appleKeyId: z.string().min(1, "Apple Key ID is required"),
+    appleP8FileContent: z.string().min(200, "P8 file appears invalid"),
+    revenueCatApiKey: z.string().min(1, "RevenueCat API Key is required"),
+    revenueCatProjectId: z.string().min(1, "RevenueCat Project ID is required"),
+    revenueCatIosAppId: z.string().min(1, "RevenueCat iOS App ID is required"),
+    configYaml: z.string().min(1, "YAML configuration is required"),
+  }).passthrough(),
+});
+export type SyncRunRequest = z.infer<typeof syncRunRequestSchema>;
+

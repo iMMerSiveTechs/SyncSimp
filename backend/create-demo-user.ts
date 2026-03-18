@@ -3,8 +3,12 @@ import { db } from './src/db';
 import { hash } from '@node-rs/argon2';
 
 async function createDemoUser() {
-  const email = 'demo@syncsimp.app';
-  const password = 'SyncDemo2024!';
+  const email = process.env.DEMO_USER_EMAIL || 'demo@syncsimp.app';
+  const password = process.env.DEMO_USER_PASSWORD;
+  if (!password) {
+    console.error('ERROR: Set DEMO_USER_PASSWORD environment variable');
+    process.exit(1);
+  }
   const name = 'Demo User';
 
   // Hash password
@@ -45,9 +49,8 @@ async function createDemoUser() {
     }
   });
 
-  console.log('✅ Demo user created successfully!');
+  console.log('Demo user created successfully!');
   console.log('Email:', email);
-  console.log('Password:', password);
 }
 
 createDemoUser().catch(console.error).finally(() => process.exit(0));

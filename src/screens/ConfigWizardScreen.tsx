@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { View, Text, TextInput, Pressable, ScrollView, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from "react-native";
 import { Plus, Trash2, HelpCircle, Check } from "lucide-react-native";
 import type { RootStackScreenProps } from "@/navigation/types";
@@ -49,14 +49,14 @@ const ConfigWizardScreen = ({ navigation, route }: Props) => {
 
   // Fetch project from Firebase
   const { data: projectData, isLoading } = useQuery({
-    queryKey: ["project", projectId],
+    queryKey: ["project", projectId, userId],
     queryFn: async () => {
       if (!userId) throw new Error("Not logged in");
       const project = await getProject(projectId, userId);
       return project;
     },
     enabled: !!userId,
-    staleTime: Infinity,
+    staleTime: 5 * 60 * 1000, // 5 minutes - allow refresh on navigation
   });
 
   // Generate YAML configuration
@@ -152,11 +152,7 @@ const ConfigWizardScreen = ({ navigation, route }: Props) => {
     mutationFn: async (values: { configYaml: string; revenueCatProjectId: string; revenueCatIosAppId: string }) => {
       if (!userId) throw new Error("Not logged in");
 
-      console.log("[ConfigWizard] ============================================");
-      console.log("[ConfigWizard] AUTO-SAVING CONFIGURATION");
-      console.log("[ConfigWizard] RevenueCat Project ID:", values.revenueCatProjectId ? "✓ Provided" : "✗ Missing");
-      console.log("[ConfigWizard] RevenueCat iOS App ID:", values.revenueCatIosAppId ? "✓ Provided" : "✗ Missing");
-      console.log("[ConfigWizard] ============================================");
+      console.log("[ConfigWizard] Auto-saving configuration...");
 
       const result = await updateProject(projectId, userId, {
         configYaml: values.configYaml || null,
@@ -187,9 +183,7 @@ const ConfigWizardScreen = ({ navigation, route }: Props) => {
 
       const configYaml = generateYAML(projectData);
 
-      console.log("[ConfigWizard] ============================================");
-      console.log("[ConfigWizard] MANUAL SAVE");
-      console.log("[ConfigWizard] ============================================");
+      console.log("[ConfigWizard] Manual save initiated");
 
       const result = await updateProject(projectId, userId, {
         configYaml: configYaml || null,

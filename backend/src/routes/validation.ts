@@ -1,5 +1,7 @@
 import { Hono } from 'hono';
 import jwt from 'jsonwebtoken';
+import { zValidator } from '@hono/zod-validator';
+import { validationCheckRequestSchema } from '../../../src/shared/contracts';
 import {
   checkRevenueCatCredentials,
   checkIAPKeyPresent,
@@ -139,30 +141,14 @@ async function checkAgreements(issuerId: string, keyId: string, privateKey: stri
 // POST /api/validation/check/:projectId - Run validation checks for a project
 // Note: This endpoint validates external credentials (Apple/RevenueCat) using data sent from Firebase
 // Authentication is handled by Firebase on the frontend - the project data is passed in the request body
-validation.post('/check/:projectId', async (c) => {
+validation.post('/check/:projectId', zValidator('json', validationCheckRequestSchema, (result, c) => {
+  if (!result.success) {
+    console.log('[Validation] Request body validation failed:', result.error.issues.map(i => i.message).join(', '));
+    return c.json({ error: 'Invalid request body', details: result.error.issues.map(i => i.message) }, 400);
+  }
+}), async (c) => {
   const { projectId } = c.req.param();
-
-  // Get project data from request body (sent from frontend which reads from Firebase)
-  // Firebase handles authentication on the frontend, so we trust the project data sent
-  let project: any;
-  try {
-    const body = await c.req.json();
-    project = body.project;
-
-    if (!project) {
-      console.log('[Validation] No project data in request body');
-      return c.json({ error: 'Project data is required in request body' }, 400);
-    }
-
-    console.log('[Validation] Received project data from Firebase for validation');
-  } catch (err) {
-    console.log('[Validation] Failed to parse request body:', err);
-    return c.json({ error: 'Invalid request body - project data required' }, 400);
-  }
-
-  if (!project) {
-    return c.json({ error: 'Project not found' }, 404);
-  }
+  const { project } = c.req.valid('json');
 
   const result: CheckResult = {
     apple: {
@@ -206,9 +192,9 @@ validation.post('/check/:projectId', async (c) => {
     if (hasAppleCredentials) {
       console.log('[Validation] ============================================');
       console.log('[Validation] APPLE CREDENTIALS CHECK STARTED');
-      console.log('[Validation] Issuer ID:', project.appleIssuerId);
-      console.log('[Validation] Key ID:', project.appleKeyId);
-      console.log('[Validation] P8 File length:', project.appleP8FileContent?.length, 'characters');
+      console.log('[Validation] Issuer ID: [REDACTED]');
+      console.log('[Validation] Key ID: [REDACTED]');
+      console.log('[Validation] P8 File: [PRESENT]', project.appleP8FileContent?.length ? `(${project.appleP8FileContent.length} chars)` : '(empty)');
       console.log('[Validation] ============================================');
 
       result.apple.apiKeyValid = await checkAppleCredentials(
@@ -265,12 +251,7 @@ validation.post('/check/:projectId', async (c) => {
       }
     }
   } catch (error: any) {
-    console.error('[Validation] ============================================');
-    console.error('[Validation] APPLE VALIDATION ERROR:');
-    console.error('[Validation] Error type:', error.constructor.name);
-    console.error('[Validation] Error message:', error.message);
-    console.error('[Validation] Full error:', error);
-    console.error('[Validation] ============================================');
+    console.error('[Validation] APPLE VALIDATION ERROR:', error.message);
     result.apple.error = error.message || 'Failed to validate Apple credentials';
   }
 
@@ -279,7 +260,7 @@ validation.post('/check/:projectId', async (c) => {
     if (hasRevenueCatCredentials) {
       console.log('[Validation] ============================================');
       console.log('[Validation] REVENUECAT CHECK STARTED');
-      console.log('[Validation] API Key:', project.revenueCatApiKey?.substring(0, 10) + '...');
+      console.log('[Validation] API Key: [REDACTED]');
       console.log('[Validation] iOS App ID:', project.revenueCatIosAppId);
       console.log('[Validation] ============================================');
 
@@ -359,12 +340,7 @@ validation.post('/check/:projectId', async (c) => {
       console.log('[Validation] ============================================');
     }
   } catch (error: any) {
-    console.error('[Validation] ============================================');
-    console.error('[Validation] REVENUECAT VALIDATION ERROR:');
-    console.error('[Validation] Error type:', error.constructor.name);
-    console.error('[Validation] Error message:', error.message);
-    console.error('[Validation] Full error:', error);
-    console.error('[Validation] ============================================');
+    console.error('[Validation] REVENUECAT VALIDATION ERROR:', error.message);
     result.revenuecat.error = error.message || 'Failed to validate RevenueCat credentials';
   }
 
