@@ -1,0 +1,9 @@
+IMPORTANT: If you're still seeing errors about HomeScreen, you MUST:
+
+1. FORCE QUIT the Vibecode app completely (swipe up from app switcher)
+2. Reopen the Vibecode app
+3. The app will download a fresh JavaScript bundle from Metro
+
+The HomeScreen file has been completely removed from the codebase, but your device is serving a stale cached bundle from memory.
+
+DO NOT just "refresh" - you must FORCE QUIT and reopen.

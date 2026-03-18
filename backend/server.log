@@ -1,0 +1,42 @@
++ exec gosu vibecode scripts/start
+Starting in development mode...
+Installing dependencies...
+[0.04ms] ".env"
+bun install v1.2.19 (aad3abea)
+
+$ prisma generate
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v6.17.1) to ./generated/prisma in 117ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Interested in query caching in just a few lines of code? Try Accelerate today! https://pris.ly/tip-3-accelerate
+
+
+Checked 831 installs across 772 packages (no changes) [1.51s]
+Generating Prisma client...
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v6.17.1) to ./generated/prisma in 193ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Need your database queries to be 1000x faster? Accelerate offers you that and more: https://pris.ly/tip-2-accelerate
+
+Pushing schema to database...
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": SQLite database "dev.db" at "file:/home/user/workspace/backend/prisma/dev.db"
+
+The database is already in sync with the Prisma schema.
+
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[G✔ Generated Prisma Client (v6.17.1) to ./generated/prisma in 145ms
+
+Enabling database viewer...
+{"success":true}Starting server in dev mode with hot reload...
+error: Cannot find module '../../../vibepay-connect/src/core/revenuecat.js' from '/home/user/workspace/backend/src/routes/validation.ts'

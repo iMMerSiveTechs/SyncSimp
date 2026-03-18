@@ -1,0 +1,54 @@
+{
+  "expo": {
+    "name": "SyncSimp",
+    "slug": "syncsimp",
+    "scheme": "syncsimp",
+    "version": "1.0.1",
+    "orientation": "portrait",
+    "icon": "./assets/icon-1764110079395.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/icon-1764110079395.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0f172a"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.nemurium.syncsimp.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "UIBackgroundModes": [],
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "SyncSimp needs access to your photo library to select screenshots for the App Store Screenshot Resizer Tool."
+      }
+    },
+    "android": {
+      "edgeToEdgeEnabled": true,
+      "package": "com.nemurium.syncsimp.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon-1764110079395.png",
+        "backgroundColor": "#0f172a"
+      }
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "15.1"
+          }
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "995a2325-5e87-4924-be66-1ca5c196730b"
+      }
+    }
+  }
+}

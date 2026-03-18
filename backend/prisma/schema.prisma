@@ -1,0 +1,214 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String    @id
+  email                 String    @unique
+  name                  String?
+  emailVerified         Boolean   @default(false)
+  image                 String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @default(now()) @updatedAt
+  hasCompletedOnboarding Boolean  @default(false)
+  Profile               Profile?
+  accounts              Account[]
+  sessions              Session[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@map("verification")
+}
+
+model Profile {
+  id     Int    @id @default(autoincrement())
+  handle String @unique
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Project {
+  id                  String    @id @default(uuid())
+  userId              String
+  name                String
+  bundleId            String
+  platform            String    @default("ios")
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  appleIssuerId       String?
+  appleKeyId          String?
+  appleP8FileContent  String?
+  appleIapKeyId       String?
+  appleIapP8Content   String?
+  revenueCatApiKey    String?
+  revenueCatProjectId String?
+  revenueCatIosAppId  String?
+  configYaml          String?
+  lastSyncAt          DateTime?
+  lastCheckAt         DateTime?
+  syncStatus          String?   @default("not_synced")
+  plans               Plan[]
+  syncLogs            SyncLog[]
+
+  @@map("project")
+}
+
+model Plan {
+  id                 String   @id @default(uuid())
+  projectId          String
+  planId             String
+  displayName        String
+  appleProductId     String
+  type               String
+  duration           String?
+  entitlement        String
+  currency           String
+  amount             Float
+  introOfferType     String?
+  introOfferDuration String?
+  rcOffering         String
+  rcPackageId        String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  project            Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("plan")
+}
+
+model SyncLog {
+  id        String   @id @default(uuid())
+  projectId String
+  action    String
+  status    String
+  message   String?
+  details   String?
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("sync_log")
+}
+
+model Artist {
+  id        String      @id @default(uuid())
+  userId    String
+  name      String
+  imageUrl  String?
+  genre     String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  albums    Album[]
+  playStats PlayStats[]
+  songs     Song[]
+
+  @@map("artist")
+}
+
+model Album {
+  id          String      @id @default(uuid())
+  userId      String
+  artistId    String
+  title       String
+  coverUrl    String?
+  releaseYear Int?
+  genre       String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  artist      Artist      @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  playStats   PlayStats[]
+  songs       Song[]
+
+  @@map("album")
+}
+
+model Song {
+  id          String      @id @default(uuid())
+  userId      String
+  artistId    String
+  albumId     String?
+  title       String
+  duration    Int
+  fileUrl     String?
+  coverUrl    String?
+  genre       String?
+  trackNumber Int?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  playStats   PlayStats[]
+  album       Album?      @relation(fields: [albumId], references: [id])
+  artist      Artist      @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@map("song")
+}
+
+model PlayStats {
+  id         String   @id @default(uuid())
+  userId     String
+  songId     String?
+  albumId    String?
+  artistId   String?
+  playedAt   DateTime @default(now())
+  duration   Int
+  completed  Boolean  @default(false)
+  location   String?
+  latitude   Float?
+  longitude  Float?
+  deviceType String?
+  platform   String?
+  artist     Artist?  @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  album      Album?   @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  song       Song?    @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@index([userId, playedAt])
+  @@index([songId, playedAt])
+  @@index([albumId, playedAt])
+  @@index([artistId, playedAt])
+  @@map("play_stats")
+}
