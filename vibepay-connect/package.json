@@ -1,0 +1,45 @@
+{
+  "name": "vibepay-connect",
+  "version": "0.1.0",
+  "description": "✨ Sync simple: calm engineering for in-app purchases",
+  "type": "module",
+  "bin": {
+    "vibepay": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest",
+    "prepublishOnly": "bun run build"
+  },
+  "keywords": [
+    "ios",
+    "in-app-purchase",
+    "revenuecat",
+    "app-store-connect",
+    "expo",
+    "react-native",
+    "cli",
+    "automation"
+  ],
+  "author": "Vibecode",
+  "license": "MIT",
+  "dependencies": {
+    "boxen": "^8.0.1",
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "inquirer": "^10.2.2",
+    "js-yaml": "^4.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "ora": "^8.1.1"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.7",
+    "@types/js-yaml": "^4.0.9",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

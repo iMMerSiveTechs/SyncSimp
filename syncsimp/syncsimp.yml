@@ -1,0 +1,76 @@
+version: 1
+
+app:
+  name: My Awesome App
+  bundleId: com.company.myapp
+  platform: ios
+
+apple:
+  subscriptionGroup:
+    referenceName: premium
+    id: premium
+  locales:
+    - id: en-US
+      name: Premium Access
+      description: Full access to all premium features
+  review:
+    notes: Standard subscription offering
+    supportUrl: https://myapp.com/support
+    privacyPolicyUrl: https://myapp.com/privacy
+
+revenuecat:
+  projectId: your-project-id
+  iosAppId: app1234567890
+
+entitlements:
+  - id: premium
+    displayName: Premium
+    description: Full access to all features
+
+plans:
+  - id: pro_monthly
+    displayName: Pro Monthly
+    store: ios
+    type: auto_renewable
+    appleProductId: com.myapp.pro.monthly
+    entitlement: premium
+    duration: P1M
+    price:
+      currency: USD
+      amount: 9.99
+    introOffer:
+      type: free_trial
+      duration: P7D
+    rc:
+      offering: default
+      packageId: monthly
+
+  - id: pro_yearly
+    displayName: Pro Yearly
+    store: ios
+    type: auto_renewable
+    appleProductId: com.myapp.pro.yearly
+    entitlement: premium
+    duration: P1Y
+    price:
+      currency: USD
+      amount: 89.99
+    introOffer:
+      type: free_trial
+      duration: P7D
+    rc:
+      offering: default
+      packageId: yearly
+
+offerings:
+  - id: default
+    displayName: Default Offering
+    description: Main subscription offering
+    primary: true
+    packages:
+      - planId: pro_monthly
+      - planId: pro_yearly
+
+notifications:
+  revenuecat:
+    appleServerNotificationUrl: https://api.revenuecat.com/v1/webhooks/apple

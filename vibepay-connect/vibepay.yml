@@ -1,0 +1,110 @@
+version: 1
+
+app:
+  name: My Awesome App
+  bundleId: com.company.myapp
+  platform: ios
+
+apple:
+  subscriptionGroup:
+    referenceName: premium
+    id: premium
+  locales:
+    - id: en-US
+      name: Premium Access
+      subtitle: Unlock everything
+      description: Get unlimited access to all premium features including cloud sync, advanced analytics, and priority support.
+    - id: es-ES
+      name: Acceso Premium
+      subtitle: Desbloquea todo
+      description: Obtén acceso ilimitado a todas las funciones premium.
+  review:
+    notes: Standard subscription for premium features. Auto-renewable monthly and yearly plans available.
+    supportUrl: https://myapp.com/support
+    privacyPolicyUrl: https://myapp.com/privacy
+
+revenuecat:
+  projectId: your-project-id-here
+  iosAppId: app1234567890
+
+entitlements:
+  - id: premium
+    displayName: Premium
+    description: Full access to all premium features
+  - id: pro
+    displayName: Pro
+    description: Professional tier with advanced features
+
+plans:
+  # Monthly subscription
+  - id: premium_monthly
+    displayName: Premium Monthly
+    store: ios
+    type: auto_renewable
+    appleProductId: com.myapp.premium.monthly
+    entitlement: premium
+    duration: P1M
+    price:
+      currency: USD
+      amount: 9.99
+    introOffer:
+      type: free_trial
+      duration: P7D
+    rc:
+      offering: default
+      packageId: monthly
+
+  # Annual subscription with discount
+  - id: premium_annual
+    displayName: Premium Annual
+    store: ios
+    type: auto_renewable
+    appleProductId: com.myapp.premium.annual
+    entitlement: premium
+    duration: P1Y
+    price:
+      currency: USD
+      amount: 79.99
+    introOffer:
+      type: free_trial
+      duration: P14D
+    rc:
+      offering: default
+      packageId: annual
+
+  # Pro tier monthly
+  - id: pro_monthly
+    displayName: Pro Monthly
+    store: ios
+    type: auto_renewable
+    appleProductId: com.myapp.pro.monthly
+    entitlement: pro
+    duration: P1M
+    price:
+      currency: USD
+      amount: 19.99
+    rc:
+      offering: pro
+      packageId: monthly
+
+offerings:
+  # Default offering (Premium)
+  - id: default
+    displayName: Premium Offering
+    description: Best value subscription plans
+    primary: true
+    packages:
+      - planId: premium_monthly
+      - planId: premium_annual
+
+  # Pro offering
+  - id: pro
+    displayName: Pro Offering
+    description: Professional features for power users
+    packages:
+      - planId: pro_monthly
+
+notifications:
+  revenuecat:
+    appleServerNotificationUrl: https://api.revenuecat.com/v1/subscribers/notifications
+

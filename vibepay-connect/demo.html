@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibePay Connect - Sync Simple</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: #e2e8f0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 80px;
+            padding: 60px 0;
+        }
+
+        .logo {
+            font-size: 72px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #a78bfa 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 900;
+            letter-spacing: -2px;
+        }
+
+        .tagline {
+            font-size: 24px;
+            color: #94a3b8;
+            margin-bottom: 40px;
+        }
+
+        .description {
+            font-size: 18px;
+            color: #cbd5e1;
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .stat-card {
+            background: rgba(167, 139, 250, 0.1);
+            border: 1px solid rgba(167, 139, 250, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(167, 139, 250, 0.15);
+            border-color: rgba(167, 139, 250, 0.5);
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a78bfa 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section {
+            margin: 80px 0;
+        }
+
+        .section-title {
+            font-size: 36px;
+            margin-bottom: 40px;
+            text-align: center;
+            color: #a78bfa;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(167, 139, 250, 0.2);
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab:hover {
+            color: #a78bfa;
+        }
+
+        .tab.active {
+            color: #a78bfa;
+            border-bottom-color: #a78bfa;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .terminal {
+            background: #1e293b;
+            border: 1px solid rgba(167, 139, 250, 0.3);
+            border-radius: 12px;
+            padding: 30px;
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .terminal-header {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-dot.red { background: #ef4444; }
+        .terminal-dot.yellow { background: #f59e0b; }
+        .terminal-dot.green { background: #10b981; }
+
+        .terminal-line {
+            margin: 8px 0;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .prompt { color: #a78bfa; }
+        .command { color: #06b6d4; }
+        .success { color: #10b981; }
+        .warning { color: #f59e0b; }
+        .error { color: #ef4444; }
+        .info { color: #cbd5e1; }
+        .muted { color: #64748b; }
+        .brand { color: #a78bfa; font-weight: 600; }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(167, 139, 250, 0.5);
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+
+        .feature-title {
+            font-size: 20px;
+            color: #a78bfa;
+            margin-bottom: 10px;
+        }
+
+        .feature-description {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .code-block {
+            background: #1e293b;
+            border: 1px solid rgba(167, 139, 250, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            color: #cbd5e1;
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(167, 139, 250, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(167, 139, 250, 0.4);
+        }
+
+        .run-animation-btn {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <div class="logo">VibePay Connect</div>
+            <div class="tagline">✨ Sync simple. Calm engineering for in-app purchases.</div>
+            <p class="description">
+                Automate the painful process of setting up iOS in-app purchases. 
+                Sync Apple App Store Connect, RevenueCat, and your Expo project from a single YAML file.
+            </p>
+            <button class="cta-button" onclick="scrollToDemo()">See Demo →</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">6+ hrs</div>
+                <div class="stat-label">Time Saved</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Commands</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">1</div>
+                <div class="stat-label">Config File</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Automated</div>
+            </div>
+        </div>
+
+        <div class="section" id="demo">
+            <h2 class="section-title">How It Works</h2>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('init')">vibepay init</button>
+                <button class="tab" onclick="showTab('check')">vibepay check</button>
+                <button class="tab" onclick="showTab('run')">vibepay run</button>
+            </div>
+
+            <div id="init-content" class="tab-content active">
+                <div class="terminal">
+                    <div class="terminal-header">
+                        <div class="terminal-dot red"></div>
+                        <div class="terminal-dot yellow"></div>
+                        <div class="terminal-dot green"></div>
+                    </div>
+                    <div class="terminal-line"><span class="prompt">$</span> <span class="command">vibepay init</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line"><span class="brand">[ App Information ]</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line"><span class="info">? Bundle ID: com.company.myapp</span></div>
+                    <div class="terminal-line"><span class="info">? App name: My Awesome App</span></div>
+                    <div class="terminal-line"><span class="info">? Subscription group ID: premium</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line"><span class="brand">[ Apple App Store Connect ]</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line"><span class="info">? App Store Connect API .p8 key path: ./AuthKey_ABC123.p8</span></div>
+                    <div class="terminal-line"><span class="info">? App Store Connect Issuer ID: abc-123-def-456</span></div>
+                    <div class="terminal-line"><span class="info">? App Store Connect Key ID: ABC123DEF4</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line"><span class="brand">[ RevenueCat ]</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line"><span class="info">? RevenueCat Project ID: abc123def</span></div>
+                    <div class="terminal-line"><span class="info">? RevenueCat iOS App ID: app1234567890</span></div>
+                    <div class="terminal-line"><span class="info">? RevenueCat API Key: sk_abc123...</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line"><span class="success">✅ Credentials saved to .vibepay.local.json</span></div>
+                    <div class="terminal-line"><span class="success">✅ Generated vibepay.yml</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line">✨ <span class="info">Setup complete!</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line"><span class="brand">Next steps:</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line">  <span class="brand">1.</span> <span class="info">Review and edit your plans in vibepay.yml</span></div>
+                    <div class="terminal-line">  <span class="brand">2.</span> <span class="info">Run 'vibepay check' to audit your setup</span></div>
+                    <div class="terminal-line">  <span class="brand">3.</span> <span class="info">Run 'vibepay run' to sync with Apple and RevenueCat</span></div>
+                </div>
+            </div>
+
+            <div id="check-content" class="tab-content">
+                <div class="terminal">
+                    <div class="terminal-header">
+                        <div class="terminal-dot red"></div>
+                        <div class="terminal-dot yellow"></div>
+                        <div class="terminal-dot green"></div>
+                    </div>
+                    <div class="terminal-line"><span class="prompt">$</span> <span class="command">vibepay check</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line"><span class="brand">[ VibePay Connect - Preflight Check ]</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line"><span class="info">⠋ Running diagnostics...</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line"><span class="brand">[ App Store Connect ]</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line"><span class="success">✅ API key is valid</span></div>
+                    <div class="terminal-line"><span class="success">✅ App found: com.company.myapp</span></div>
+                    <div class="terminal-line"><span class="success">✅ Agreements, tax, and banking configured</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line"><span class="brand">[ RevenueCat ]</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line"><span class="success">✅ Project connection successful</span></div>
+                    <div class="terminal-line"><span class="success">✅ In-App Purchase key configured</span></div>
+                    <div class="terminal-line"><span class="success">✅ App Store Connect key configured</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line"><span class="brand">[ Local Configuration ]</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line"><span class="success">✅ vibepay.yml is valid</span></div>
+                    <div class="terminal-line"><span class="success">✅ Expo configuration found</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line"><span class="muted">────────────────────────────────────────────────────────────</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line"><span class="success">✅ All checks passed!</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line"><span class="brand">Next steps:</span></div>
+                    <div class="terminal-line">&nbsp;</div>
+                    <div class="terminal-line">  <span class="brand">1.</span> <span class="info">Run 'vibepay run' to sync your configuration</span></div>
+                </div>
+            </div>
+
+            <div id="run-content" class="tab-content">
+                <button class="cta-button run-animation-btn" onclick="runAnimation()">▶ Run Animation</button>
+                <div id="run-terminal" class="terminal">
+                    <div class="terminal-header">
+                        <div class="terminal-dot red"></div>
+                        <div class="terminal-dot yellow"></div>
+                        <div class="terminal-dot green"></div>
+                    </div>
+                    <div id="run-output"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Configuration Example</h2>
+            <div class="code-block">
+                <pre>version: 1
+
+app:
+  name: My Awesome App
+  bundleId: com.company.myapp
+  platform: ios
+
+plans:
+  - id: premium_monthly
+    displayName: Premium Monthly
+    store: ios
+    type: auto_renewable
+    appleProductId: com.myapp.premium.monthly
+    entitlement: premium
+    duration: P1M
+    price:
+      currency: USD
+      amount: 9.99
+    introOffer:
+      type: free_trial
+      duration: P7D
+    rc:
+      offering: default
+      packageId: monthly</pre>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Features</h2>
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-title">Single Source of Truth</div>
+                    <div class="feature-description">Define everything once in vibepay.yml - no more manual clicking through dashboards</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">✨</div>
+                    <div class="feature-title">Idempotent Sync</div>
+                    <div class="feature-description">Run multiple times safely - only creates what's missing, updates what changed</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔎</div>
+                    <div class="feature-title">Preflight Checks</div>
+                    <div class="feature-description">Validates everything before syncing - catch errors early</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <div class="feature-title">Full Automation</div>
+                    <div class="feature-description">Syncs Apple App Store Connect, RevenueCat, and local Expo config</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <div class="feature-title">Calm UX</div>
+                    <div class="feature-description">Clear, structured output with helpful error messages and guidance</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-title">Built for Speed</div>
+                    <div class="feature-description">Save 6+ hours per app setup - focus on building, not configuring</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-content').classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        function scrollToDemo() {
+            document.getElementById('demo').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function runAnimation() {
+            const output = document.getElementById('run-output');
+            output.innerHTML = '';
+            
+            const lines = [
+                '<div class="terminal-line"><span class="prompt">$</span> <span class="command">vibepay run</span></div>',
+                '<div class="terminal-line">&nbsp;</div>',
+                '<div class="terminal-line">🚀 <span class="info">Syncing vibepay.yml with Apple and RevenueCat...</span></div>',
+                '<div class="terminal-line">&nbsp;</div>',
+                '<div class="terminal-line"><span class="brand">[ 1/3 ] App Store Connect</span></div>',
+                '<div class="terminal-line">&nbsp;</div>',
+                '<div class="terminal-line"><span class="success">✓ Apple App Store Connect synced</span></div>',
+                '<div class="terminal-line">  <span class="muted">• Found app: com.company.myapp</span></div>',
+                '<div class="terminal-line">  <span class="muted">• Subscription group \'premium\' found</span></div>',
+                '<div class="terminal-line">  <span class="muted">• Product \'com.myapp.premium.monthly\' created</span></div>',
+                '<div class="terminal-line">  <span class="muted">• Created localization for en-US</span></div>',
+                '<div class="terminal-line">  <span class="muted">• Price scheduling configured</span></div>',
+                '<div class="terminal-line">&nbsp;</div>',
+                '<div class="terminal-line"><span class="brand">[ 2/3 ] RevenueCat</span></div>',
+                '<div class="terminal-line">&nbsp;</div>',
+                '<div class="terminal-line"><span class="success">✓ RevenueCat configured</span></div>',
+                '<div class="terminal-line">  <span class="muted">• Created entitlement \'premium\'</span></div>',
+                '<div class="terminal-line">  <span class="muted">• Created offering \'default\'</span></div>',
+                '<div class="terminal-line">  <span class="muted">• Configured product \'com.myapp.premium.monthly\'</span></div>',
+                '<div class="terminal-line">  <span class="muted">• Attached entitlement \'premium\' to product</span></div>',
+                '<div class="terminal-line">&nbsp;</div>',
+                '<div class="terminal-line"><span class="brand">[ 3/3 ] Local Project</span></div>',
+                '<div class="terminal-line">&nbsp;</div>',
+                '<div class="terminal-line"><span class="success">✓ Local configuration reviewed</span></div>',
+                '<div class="terminal-line">  <span class="muted">• Ensure react-native-purchases is configured</span></div>',
+                '<div class="terminal-line">&nbsp;</div>',
+                '<div class="terminal-line"><span class="muted">────────────────────────────────────────────────────────────</span></div>',
+                '<div class="terminal-line">&nbsp;</div>',
+                '<div class="terminal-line"><span class="success">✨ VibePay Connect sync complete!</span></div>',
+                '<div class="terminal-line">&nbsp;</div>',
+                '<div class="terminal-line"><span class="brand">Next steps:</span></div>',
+                '<div class="terminal-line">&nbsp;</div>',
+                '<div class="terminal-line">  <span class="brand">1.</span> <span class="info">Build a development build with Expo</span></div>',
+                '<div class="terminal-line">  <span class="brand">2.</span> <span class="info">Test purchases with a Sandbox user</span></div>',
+                '<div class="terminal-line">  <span class="brand">3.</span> <span class="info">Verify entitlements are granted correctly</span></div>',
+            ];
+            
+            let delay = 0;
+            lines.forEach((line, index) => {
+                setTimeout(() => {
+                    output.innerHTML += line;
+                }, delay);
+                delay += 150;
+            });
+        }
+
+        // Auto-run animation on page load for the run tab
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                // Optional: auto-run animation
+                // runAnimation();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
