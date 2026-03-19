@@ -15,7 +15,7 @@ async function testWithNewClient() {
   await freshDb.project.update({
     where: { id: '304ea0c9-019d-425d-8b9f-051de0cdfbc8' },
     data: {
-      revenueCatApiKey: 'sk_NEW_TEST_' + Date.now(),
+      revenueCatApiKey: process.env.REVENUECAT_SECRET_KEY || ('test_' + Date.now()),
       updatedAt: new Date()
     }
   });

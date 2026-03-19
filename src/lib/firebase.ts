@@ -28,15 +28,21 @@ import {
 } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Firebase configuration - loaded from environment variables with fallback
+// Firebase configuration - loaded from environment variables only
+// These MUST be set via .env or build-time injection (Vibecode handles this)
 const firebaseConfig = {
-  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || "AIzaSyCG5VfBc0RHlXHHtPJemL06FLiESb7RSAY",
-  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || "syncsimp-12152025.firebaseapp.com",
-  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || "syncsimp-12152025",
-  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || "syncsimp-12152025.firebasestorage.app",
-  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "918396216946",
-  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || "1:918396216946:ios:3112fbef3c845dc18dc4eb",
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
+
+// Warn if Firebase config is missing (helps debug in development)
+if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+  console.warn("[Firebase] Missing required environment variables. Set EXPO_PUBLIC_FIREBASE_API_KEY and EXPO_PUBLIC_FIREBASE_PROJECT_ID in your .env file.");
+}
 
 // Initialize Firebase (only once)
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();

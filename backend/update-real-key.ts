@@ -26,7 +26,7 @@ async function updateWithRealKey() {
     where: { id: '304ea0c9-019d-425d-8b9f-051de0cdfbc8' }
   });
 
-  console.log('\nVerified - RevenueCat API Key:', verify?.revenueCatApiKey);
+  console.log('\nVerified - RevenueCat API Key:', verify?.revenueCatApiKey ? '[SET]' : '[NOT SET]');
 
   await freshDb.$disconnect();
   process.exit(0);

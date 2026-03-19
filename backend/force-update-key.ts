@@ -1,11 +1,13 @@
 import { db } from './src/db.js';
 
 async function forceUpdateKey() {
-  // Use a dummy test key to see if the validation logic itself is the problem
-  const testKey = 'sk_test_key_for_debugging';
+  const testKey = process.env.REVENUECAT_SECRET_KEY;
+  if (!testKey) {
+    console.error('ERROR: Set REVENUECAT_SECRET_KEY environment variable');
+    process.exit(1);
+  }
 
   console.log('Forcing database update...');
-  console.log('Setting RevenueCat API Key to:', testKey);
 
   await db.project.update({
     where: { id: '304ea0c9-019d-425d-8b9f-051de0cdfbc8' },
@@ -23,7 +25,7 @@ async function forceUpdateKey() {
   });
 
   console.log('\nVerification:');
-  console.log('RevenueCat API Key in DB:', project?.revenueCatApiKey);
+  console.log('RevenueCat API Key in DB:', project?.revenueCatApiKey ? '[SET]' : '[NOT SET]');
   console.log('Updated At:', project?.updatedAt);
 
   process.exit(0);
