@@ -1,0 +1,18 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+.expo/
+
+# Logs
+*.log
+
+# Database
+*.db
+*.db-journal
