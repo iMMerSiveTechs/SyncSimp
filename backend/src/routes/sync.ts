@@ -217,8 +217,9 @@ sync.post('/run/:projectId', async (c) => {
       if (subscriberResponse.ok) {
         const subscriberData = await subscriberResponse.json();
         const entitlements = subscriberData.subscriber?.entitlements || {};
-        const hasPremium = entitlements.premium?.expires_date
-          ? new Date(entitlements.premium.expires_date) > new Date()
+        const premiumEntitlement = entitlements.premium;
+        const hasPremium = premiumEntitlement
+          ? (premiumEntitlement.expires_date === null || new Date(premiumEntitlement.expires_date) > new Date())
           : false;
 
         console.log('[Sync] User has premium:', hasPremium);
