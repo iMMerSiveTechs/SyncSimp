@@ -5,8 +5,8 @@
  * missing configuration. The app will work fine whether or not RevenueCat is configured.
  *
  * Environment Variables:
- * - EXPO_PUBLIC_VIBECODE_REVENUECAT_TEST_KEY: Used in development/test builds
- * - EXPO_PUBLIC_VIBECODE_REVENUECAT_APPLE_KEY: Used in production builds
+ * - EXPO_PUBLIC_RC_TEST_KEY: Used in development/test builds
+ * - EXPO_PUBLIC_RC_APPLE_KEY: Used in production builds
  * These are automatically injected into the workspace by the Vibecode service once the user sets up RevenueCat in the Payments tab.
  *
  * Platform Support:
@@ -30,8 +30,8 @@ import Purchases, {
 const isWeb = Platform.OS === "web";
 
 // Check for environment keys
-const testKey = process.env.EXPO_PUBLIC_VIBECODE_REVENUECAT_TEST_KEY;
-const prodKey = process.env.EXPO_PUBLIC_VIBECODE_REVENUECAT_APPLE_KEY;
+const testKey = process.env.EXPO_PUBLIC_RC_TEST_KEY;
+const prodKey = process.env.EXPO_PUBLIC_RC_APPLE_KEY;
 
 // Use __DEV__ to determine which key to use (standard React Native pattern)
 const apiKey = isWeb ? undefined : __DEV__ ? testKey : prodKey;

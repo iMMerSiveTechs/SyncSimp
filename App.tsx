@@ -12,24 +12,8 @@ import { useEffect, Component, type ReactNode } from "react";
 import { setUserId, isRevenueCatEnabled } from "@/lib/revenuecatClient";
 
 /*
-IMPORTANT NOTICE: DO NOT REMOVE
-There are already environment keys in the project.
-Before telling the user to add them, check if you already have access to the required keys through bash.
-Directly access them with process.env.${key}
-
-Correct usage:
-process.env.EXPO_PUBLIC_VIBECODE_{key}
-//directly access the key
-
-Incorrect usage:
-import { OPENAI_API_KEY } from '@env';
-//don't use @env, its depreicated
-
-Incorrect usage:
-import Constants from 'expo-constants';
-const openai_api_key = Constants.expoConfig.extra.apikey;
-//don't use expo-constants, its depreicated
-
+Environment keys are accessed directly via process.env.EXPO_PUBLIC_{KEY}
+Do not use @env or expo-constants for env vars.
 */
 
 // Error Boundary to catch crashes and show friendly error screen

@@ -12,7 +12,7 @@ import { fetch } from "expo/fetch";
 /**
  * Backend URL Configuration
  */
-const BACKEND_URL = process.env.EXPO_PUBLIC_VIBECODE_BACKEND_URL || process.env.BACKEND_URL || "http://localhost:3000";
+const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || "http://localhost:3000";
 
 /**
  * Check if the backend is available

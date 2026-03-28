@@ -19,11 +19,11 @@ SyncSimp has a direct integration pipeline from the app to both RevenueCat and A
 - `backend/src/routes/validation.ts` - Credential validation before sync
 
 **Environment Variables Needed:**
-- `EXPO_PUBLIC_VIBECODE_REVENUECAT_TEST_KEY` - RevenueCat public SDK key (dev)
-- `EXPO_PUBLIC_VIBECODE_REVENUECAT_APPLE_KEY` - RevenueCat public SDK key (prod)
-- `EXPO_PUBLIC_VIBECODE_BACKEND_URL` - Backend server URL
+- `EXPO_PUBLIC_RC_TEST_KEY` - RevenueCat public SDK key (dev)
+- `EXPO_PUBLIC_RC_APPLE_KEY` - RevenueCat public SDK key (prod)
+- `EXPO_PUBLIC_BACKEND_URL` - Backend server URL
 
-Add these via the ENV tab in the Vibecode app.
+Add these as environment variables in your `.env` file or Expo config.
 
 **How It Works:**
 1. User enters Apple + RevenueCat credentials in the app (CredentialsScreen)
@@ -609,7 +609,7 @@ You should see this log sequence:
 - **NEW**: Interactive error diagnosis section on the Sync screen - THIS is what you asked for!
 - **Paste Expo errors directly** into a text box on Step 4
 - **Instant diagnosis** - automatically detects 9 error types:
-  - Vibecode bundle ID override (com.vibecode.*)
+  - Bundle ID override detection
   - Authentication failures ("Failed to authenticate for session")
   - Missing credentials
   - Bundle ID mismatches
@@ -685,7 +685,7 @@ You should see this log sequence:
 - Graceful fallback when RevenueCat isn't configured
 - Added "Restore Purchases" functionality
 - Dynamic pricing loaded from RevenueCat offerings
-- See `VIBECODE_PAYMENTS_GUIDE.md` for integration details and patterns for other Expo builders
+- See RevenueCat documentation for integration details
 
 ✅ **🔧 Database Path Fix (Readonly Error):**
 - **FIXED**: "attempt to write a readonly database" error when creating projects
@@ -1185,7 +1185,7 @@ When setting up in RevenueCat, create these products:
 **Integration Status:**
 - ✅ Onboarding flow with pricing UI complete
 - ✅ Per-sync quantity selector working
-- ✅ RevenueCat SDK integrated via Vibecode Payments tab
+- RevenueCat SDK integrated directly
 - ✅ Real purchase handlers implemented
 - ✅ Products, entitlements, offerings configured in RevenueCat
 - ✅ Restore purchases functionality
@@ -1206,4 +1206,4 @@ When setting up in RevenueCat, create these products:
 
 ---
 
-**Made with ✨ by Vibecode**
+**SyncSimp - Standalone Expo App**

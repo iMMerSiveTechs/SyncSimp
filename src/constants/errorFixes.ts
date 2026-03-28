@@ -767,62 +767,6 @@ export const ERROR_FIXES: Record<string, ErrorFix> = {
     needsHelp: "Build number is auto-incremented if you use 'eas build --auto-increment'. Version is what users see, build number is internal."
   },
 
-  VIBECODE_BUNDLE_ID_OVERRIDE: {
-    title: "Vibecode Overrode Your Bundle ID (Critical Issue)",
-    description: "Vibecode's publish system auto-generates bundle IDs in the format 'com.vibecode.{appname}-{random}' and you CANNOT change it. This means your App Store Connect setup with a different bundle ID will never work. You must recreate everything using Vibecode's bundle ID.",
-    estimatedTime: "30-60 minutes (complete redo)",
-    steps: [
-      {
-        number: 1,
-        instruction: "CRITICAL: Understand this is a Vibecode limitation",
-        details: "Vibecode does NOT allow custom bundle IDs when using their publish system. The bundle ID 'com.vibecode.{appname}-{random}' is automatically assigned and cannot be changed through any Vibecode setting, ENV variable, or configuration."
-      },
-      {
-        number: 2,
-        instruction: "Find the exact Vibecode bundle ID from your build logs",
-        details: "Look at your EAS build error logs and copy the EXACT bundle ID Vibecode generated (e.g., 'com.vibecode.syncsimp-aztxrv'). You'll need this exact string."
-      },
-      {
-        number: 3,
-        instruction: "Delete or abandon your existing App Store Connect app (if not submitted)",
-        details: "If you haven't submitted your app to the App Store yet, you can delete it: Go to appstoreconnect.apple.com → Your App → App Information → Delete App. If you already submitted, you're stuck - the bundle ID can't be reused."
-      },
-      {
-        number: 4,
-        instruction: "Register Vibecode's bundle ID in Apple Developer Portal",
-        details: "Go to developer.apple.com → Certificates, Identifiers & Profiles → Identifiers → Click '+' → Select 'App IDs' → Enter the EXACT Vibecode bundle ID (e.g., com.vibecode.syncsimp-aztxrv) → Enable 'In-App Purchase' capability → Register"
-      },
-      {
-        number: 5,
-        instruction: "Create NEW app in App Store Connect with Vibecode's bundle ID",
-        details: "Go to appstoreconnect.apple.com → Apps → '+' → New App → Platform: iOS → Name: Your app name → Bundle ID: Select the Vibecode bundle ID you just registered → SKU: any unique ID → Create"
-      },
-      {
-        number: 6,
-        instruction: "Update your app.json to match Vibecode's bundle ID (won't fix Vibecode, but keeps consistency)",
-        details: "In app.json, change 'ios.bundleIdentifier' to match Vibecode's bundle ID. This won't fix the Vibecode publish system, but it keeps your local config consistent."
-      },
-      {
-        number: 7,
-        instruction: "If using RevenueCat/SyncSimp: Recreate with new bundle ID",
-        details: "If you set up RevenueCat or used SyncSimp to configure in-app purchases, you need to: 1) Create a new app in RevenueCat with the Vibecode bundle ID, 2) Re-run SyncSimp configuration with the new bundle ID"
-      },
-      {
-        number: 8,
-        instruction: "Try publishing from Vibecode again",
-        details: "Now that Apple has the Vibecode bundle ID registered, the publish should work. The build will still say 'com.vibecode.syncsimp-aztxrv' but Apple will accept it."
-      }
-    ],
-    commonMistakes: [
-      "Thinking you can change Vibecode's bundle ID (you can't - it's hardcoded)",
-      "Trying ENV variables or settings to override (none exist)",
-      "Not deleting the old App Store Connect app first (causes 'bundle ID already exists' errors)",
-      "Forgetting to update RevenueCat and other services with the new bundle ID",
-      "Not registering the EXACT bundle ID with the random suffix (e.g., missing '-aztxrv')"
-    ],
-    needsHelp: "This is a fundamental limitation of Vibecode's publish system. If you need a custom bundle ID, you cannot use Vibecode's publish feature. You would need to: 1) Eject from Vibecode, 2) Set up your own EAS account, 3) Configure your own bundle ID, 4) Publish through your own EAS setup. This defeats the purpose of Vibecode's automated publish system."
-  },
-
   EAS_AUTHENTICATION_FAILED: {
     title: "App Store Connect Authentication Failed",
     description: "EAS couldn't authenticate with App Store Connect when trying to upload your app. This happens when your API credentials are missing, invalid, expired, or don't have the right permissions.",
@@ -892,13 +836,6 @@ export function getErrorFixForValidationResult(
   // ============================================
   // EAS BUILD & SUBMISSION ERRORS (Priority check)
   // ============================================
-
-  // Vibecode bundle ID override - Check this FIRST before authentication
-  // This detects when Expo/Vibecode is using com.vibecode.* bundle ID
-  if (lowerError.includes("com.vibecode.") ||
-      (checkName.toLowerCase().includes("vibecode") && lowerError.includes("bundle"))) {
-    return ERROR_FIXES.VIBECODE_BUNDLE_ID_OVERRIDE;
-  }
 
   // Authentication failure - MUST check before general credentials check
   if ((lowerError.includes("failed to authenticate") ||

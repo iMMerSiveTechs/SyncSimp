@@ -198,7 +198,7 @@ sync.post('/run/:projectId', async (c) => {
   }
 
   // Check if user has premium entitlement via RevenueCat
-  const revenueCatApiKey = process.env.EXPO_PUBLIC_VIBECODE_REVENUECAT_APPLE_KEY || process.env.EXPO_PUBLIC_VIBECODE_REVENUECAT_TEST_KEY;
+  const revenueCatApiKey = process.env.EXPO_PUBLIC_RC_APPLE_KEY || process.env.EXPO_PUBLIC_RC_TEST_KEY;
   const firebaseUserId = project.userId;
 
   if (revenueCatApiKey && firebaseUserId) {
