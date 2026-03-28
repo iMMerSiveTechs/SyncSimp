@@ -1,113 +1,88 @@
 /**
  * API Client Module
  *
- * This module provides a centralized API client for making HTTP requests to the backend.
- * Authentication is handled by Firebase on the frontend - the backend just processes
- * project data sent in the request body.
+ * Uses Firebase Cloud Functions (httpsCallable) for all backend operations.
+ * Authentication is handled automatically by Firebase -- the Cloud Function
+ * receives the authenticated user's UID via context.auth.
  */
 
-// Import fetch from expo/fetch for React Native compatibility
-import { fetch } from "expo/fetch";
+import { httpsCallable } from "firebase/functions";
+import { functions } from "./firebase";
+
+import type { SyncRunResponse } from "@/shared/contracts";
+import type { ValidationCheckResponse } from "@/shared/contracts";
+
+// Callable function references
+const runSyncFn = httpsCallable(functions, "runSync");
+const checkValidationFn = httpsCallable(functions, "checkValidation");
 
 /**
- * Backend URL Configuration
+ * Run sync for a project.
+ * The Cloud Function reads project data directly from Firestore.
  */
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || "http://localhost:3000";
-
-/**
- * Check if the backend is available
- */
-export const isBackendAvailable = (): boolean => {
-  return true;
-};
-
-type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-
-type FetchOptions = {
-  method: HttpMethod;
-  body?: object;
-};
-
-/**
- * Core Fetch Function
- *
- * Simple wrapper around fetch that handles JSON requests/responses.
- * No authentication handling - Firebase auth is on the frontend,
- * and protected backend routes receive data in the request body.
- */
-const fetchFn = async <T>(path: string, options: FetchOptions): Promise<T> => {
-  const { method, body } = options;
-
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-
-  const url = `${BACKEND_URL}${path}`;
-  console.log(`[api.ts] Making ${method} request to: ${url}`);
-
+export async function runSync(projectId: string): Promise<SyncRunResponse> {
   try {
-    // Add timeout to prevent app from hanging on network issues
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
-
-    const response = await fetch(url, {
-      method,
-      headers,
-      body: body ? JSON.stringify(body) : undefined,
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeoutId);
-
-    console.log("[api.ts] Response status:", response.status);
-
-    const responseText = await response.text();
-
-    if (!response.ok) {
-      let errorMessage = `${response.status} ${response.statusText}`;
-
-      try {
-        const errorData = JSON.parse(responseText);
-        errorMessage += `: ${JSON.stringify(errorData)}`;
-      } catch {
-        errorMessage += `: ${responseText.slice(0, 200)}`;
-      }
-
-      throw new Error(`[api.ts]: ${errorMessage}`);
-    }
-
-    try {
-      return JSON.parse(responseText) as T;
-    } catch (parseError) {
-      console.error("[api.ts] Failed to parse response as JSON");
-      throw new Error(`[api.ts]: Invalid JSON response from ${path}`);
-    }
+    const result = await runSyncFn({ projectId });
+    return result.data as SyncRunResponse;
   } catch (error: any) {
-    console.log(`[api.ts] Error:`, error?.message);
+    console.log("[api] runSync error:", error.message);
 
-    // Handle timeout errors
-    if (error.name === 'AbortError') {
-      throw new Error(`[api.ts]: Request timeout - The server took too long to respond.`);
+    // Firebase callable errors include a details field with our custom JSON
+    if (error.details) {
+      try {
+        return typeof error.details === "string" ? JSON.parse(error.details) : error.details;
+      } catch {
+        // fall through
+      }
     }
 
-    // Handle network errors
-    if (error.message?.includes('Network request failed') || error.message?.includes('fetch')) {
-      throw new Error(`[api.ts]: Network error - Please check your internet connection.`);
+    // Try to parse the error message as JSON (we encode fix instructions there)
+    if (error.message) {
+      try {
+        return JSON.parse(error.message);
+      } catch {
+        // fall through
+      }
     }
 
     throw error;
   }
-};
+}
 
 /**
- * API Client Object
+ * Run validation for a project.
+ * The Cloud Function reads project data directly from Firestore.
  */
-const api = {
-  get: <T>(path: string) => fetchFn<T>(path, { method: "GET" }),
-  post: <T>(path: string, body?: object) => fetchFn<T>(path, { method: "POST", body }),
-  put: <T>(path: string, body?: object) => fetchFn<T>(path, { method: "PUT", body }),
-  patch: <T>(path: string, body?: object) => fetchFn<T>(path, { method: "PATCH", body }),
-  delete: <T>(path: string) => fetchFn<T>(path, { method: "DELETE" }),
+export async function checkValidation(projectId: string): Promise<ValidationCheckResponse> {
+  try {
+    const result = await checkValidationFn({ projectId });
+    return result.data as ValidationCheckResponse;
+  } catch (error: any) {
+    console.log("[api] checkValidation error:", error.message);
+    throw error;
+  }
+}
+
+/**
+ * Legacy API client object for backward compatibility.
+ * Screens that still use api.post() will work through this wrapper.
+ */
+export const api = {
+  post: async <T>(path: string, body?: any): Promise<T> => {
+    // Route to the correct callable function based on path
+    if (path.includes("/api/sync/run/")) {
+      const projectId = path.split("/api/sync/run/")[1];
+      return runSync(projectId) as unknown as T;
+    }
+    if (path.includes("/api/validation/check/")) {
+      const projectId = path.split("/api/validation/check/")[1];
+      return checkValidation(projectId) as unknown as T;
+    }
+    throw new Error(`[api] Unknown endpoint: ${path}. All backend calls should use Cloud Functions.`);
+  },
+  get: async <T>(_path: string): Promise<T> => {
+    throw new Error("[api] GET not supported. Use Firebase directly.");
+  },
 };
 
-export { api, BACKEND_URL };
+export const BACKEND_URL = ""; // No longer needed -- using Firebase Cloud Functions

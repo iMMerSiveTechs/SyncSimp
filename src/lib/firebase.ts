@@ -26,6 +26,7 @@ import {
   serverTimestamp,
   type Timestamp
 } from "firebase/firestore";
+import { getFunctions } from "firebase/functions";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Firebase configuration from GoogleService-Info.plist
@@ -57,6 +58,9 @@ try {
 
 // Initialize Firestore
 const db = getFirestore(app);
+
+// Initialize Cloud Functions
+const functions = getFunctions(app);
 
 console.log("[Firebase] Initialized with project:", firebaseConfig.projectId);
 
@@ -329,4 +333,4 @@ export const deleteProject = async (projectId: string, userId: string) => {
 };
 
 // Export instances
-export { auth, db, app };
+export { auth, db, app, functions };
