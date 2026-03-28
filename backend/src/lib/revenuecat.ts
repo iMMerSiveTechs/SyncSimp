@@ -67,21 +67,102 @@ export async function checkRevenueCatCredentials(apiKey: string): Promise<boolea
 }
 
 /**
- * Check if IAP key is present
- * Note: This may not be directly accessible via API
+ * Check if IAP Shared Secret is configured for the app in RevenueCat
+ * Queries the app details to verify App Store shared secret is present
  */
 export async function checkIAPKeyPresent(apiKey: string, iosAppId: string): Promise<boolean> {
-  // TODO: Find if there's an API endpoint to check this
-  // For now, return true and assume user has configured it
-  return true;
+  try {
+    // List projects to find the one containing our app
+    const projectsResponse = await fetch("https://api.revenuecat.com/v2/projects", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!projectsResponse.ok) return false;
+
+    const projectsData = await projectsResponse.json();
+    const projects = projectsData.items || [];
+
+    // Check each project for the iOS app
+    for (const project of projects) {
+      const appsResponse = await fetch(
+        `https://api.revenuecat.com/v2/projects/${project.id}/apps`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!appsResponse.ok) continue;
+
+      const appsData = await appsResponse.json();
+      const app = (appsData.items || []).find((a: any) => a.id === iosAppId);
+
+      if (app) {
+        // Check if shared_secret is configured (RevenueCat masks it but shows if present)
+        return app.app_store_shared_secret !== null && app.app_store_shared_secret !== undefined;
+      }
+    }
+
+    return false;
+  } catch (error) {
+    console.error("[RevenueCat] Error checking IAP key:", error);
+    return false;
+  }
 }
 
 /**
- * Check if ASC key is present
+ * Check if App Store Connect API key is configured for the app in RevenueCat
  */
 export async function checkAscKeyPresent(apiKey: string, iosAppId: string): Promise<boolean> {
-  // TODO: Find if there's an API endpoint to check this
-  return true;
+  try {
+    const projectsResponse = await fetch("https://api.revenuecat.com/v2/projects", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!projectsResponse.ok) return false;
+
+    const projectsData = await projectsResponse.json();
+    const projects = projectsData.items || [];
+
+    for (const project of projects) {
+      const appsResponse = await fetch(
+        `https://api.revenuecat.com/v2/projects/${project.id}/apps`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!appsResponse.ok) continue;
+
+      const appsData = await appsResponse.json();
+      const app = (appsData.items || []).find((a: any) => a.id === iosAppId);
+
+      if (app) {
+        // Check if ASC API key fields are configured
+        return app.app_store_connect_api_key_id !== null && app.app_store_connect_api_key_id !== undefined;
+      }
+    }
+
+    return false;
+  } catch (error) {
+    console.error("[RevenueCat] Error checking ASC key:", error);
+    return false;
+  }
 }
 
 /**

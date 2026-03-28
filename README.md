@@ -2,6 +2,37 @@
 
 A production-ready React Native mobile app for managing iOS in-app purchase sync projects. This app automates the entire process of setting up in-app purchases across Apple App Store Connect and RevenueCat.
 
+## RevenueCat + Apple App Store Connect Pipeline (Mar 28, 2026)
+
+SyncSimp has a direct integration pipeline from the app to both RevenueCat and Apple App Store Connect:
+
+**Frontend (RevenueCat SDK):**
+- `src/lib/revenuecatClient.ts` - SDK wrapper with graceful degradation
+- `src/lib/revenuecatProducts.ts` - Product/entitlement definitions
+- `src/components/NativePaywall.tsx` - Purchase UI
+- Entitlement ID: `"premium"` (consistent across frontend and backend)
+
+**Backend (API Proxy):**
+- `backend/src/lib/apple.ts` - Apple ASC API client (JWT auth, product creation)
+- `backend/src/lib/revenuecat.ts` - RevenueCat v2 API client (entitlements, offerings, product mapping)
+- `backend/src/routes/sync.ts` - Sync engine orchestrating both services
+- `backend/src/routes/validation.ts` - Credential validation before sync
+
+**Environment Variables Needed:**
+- `EXPO_PUBLIC_VIBECODE_REVENUECAT_TEST_KEY` - RevenueCat public SDK key (dev)
+- `EXPO_PUBLIC_VIBECODE_REVENUECAT_APPLE_KEY` - RevenueCat public SDK key (prod)
+- `EXPO_PUBLIC_VIBECODE_BACKEND_URL` - Backend server URL
+
+Add these via the ENV tab in the Vibecode app.
+
+**How It Works:**
+1. User enters Apple + RevenueCat credentials in the app (CredentialsScreen)
+2. Credentials are validated against both APIs (CheckScreen)
+3. Sync engine creates products in Apple ASC and maps them in RevenueCat (SyncScreen)
+4. RevenueCat SDK handles purchases and entitlements on the device
+
+---
+
 ## ✅ APP IS READY FOR APP STORE SUBMISSION (Dec 15, 2025 - FIREBASE MIGRATION V6)
 
 **See [APP_STORE_SUBMISSION_GUIDE.md](./APP_STORE_SUBMISSION_GUIDE.md) for complete submission instructions.**

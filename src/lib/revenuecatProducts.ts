@@ -11,7 +11,7 @@
  */
 
 export const ENTITLEMENTS = {
-  PRO: "SyncSimp App Pro",
+  PRO: "premium",
 } as const;
 
 export const PRODUCT_IDENTIFIERS = {
