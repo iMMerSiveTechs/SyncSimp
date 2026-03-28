@@ -13,7 +13,7 @@ async function testSecretKey() {
   console.log('🔑 TESTING SECRET KEY FROM DATABASE');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-  console.log('API Key:', apiKey);
+  console.log('API Key:', apiKey ? '[SET]' : '[NOT SET]');
   console.log('Key Type:', apiKey.startsWith('sk_') ? 'SECRET KEY ✅' : 'Public Key (wrong!)');
 
   console.log('\n--- Testing V1 /projects endpoint ---');

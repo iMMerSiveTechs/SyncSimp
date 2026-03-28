@@ -15,7 +15,7 @@ async function testRevenueCatDirectly() {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
   const apiKey = project.revenueCatApiKey;
-  console.log('API Key:', apiKey.substring(0, 20) + '...');
+  console.log('API Key:', apiKey ? '[SET]' : '[NOT SET]');
   console.log('Project ID:', project.revenueCatProjectId);
   console.log('iOS App ID:', project.revenueCatIosAppId);
 

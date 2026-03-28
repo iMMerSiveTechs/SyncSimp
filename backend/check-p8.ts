@@ -10,13 +10,13 @@ async function checkP8Format() {
     return;
   }
 
-  console.log('P8 File Content:');
+  console.log('P8 File Info:');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log(project.appleP8FileContent);
+  console.log('Length:', project.appleP8FileContent.length, 'characters');
+  console.log('Has BEGIN header:', project.appleP8FileContent.includes('-----BEGIN PRIVATE KEY-----'));
+  console.log('Has END footer:', project.appleP8FileContent.includes('-----END PRIVATE KEY-----'));
+  console.log('Format: [CONTENT REDACTED]');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('\nLength:', project.appleP8FileContent.length, 'characters');
-  console.log('Starts with:', project.appleP8FileContent.substring(0, 30));
-  console.log('Ends with:', project.appleP8FileContent.substring(project.appleP8FileContent.length - 30));
 
   process.exit(0);
 }

@@ -7,7 +7,7 @@ const project = await freshDb.project.findUnique({
 });
 
 console.log('\n=== ACTUAL DATABASE STATE ===\n');
-console.log('RevenueCat API Key:', project?.revenueCatApiKey);
+console.log('RevenueCat API Key:', project?.revenueCatApiKey ? '[SET]' : '[NOT SET]');
 console.log('Project ID:', project?.revenueCatProjectId);
 console.log('iOS App ID:', project?.revenueCatIosAppId);
 console.log('Updated At:', project?.updatedAt);

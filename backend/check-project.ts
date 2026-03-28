@@ -14,11 +14,11 @@ async function checkProject() {
   console.log('Name:', project.name);
   console.log('Bundle ID:', project.bundleId);
   console.log('\n=== APPLE CREDENTIALS ===');
-  console.log('Has Issuer ID:', !!project.appleIssuerId, project.appleIssuerId ? `(${project.appleIssuerId})` : '');
-  console.log('Has Key ID:', !!project.appleKeyId, project.appleKeyId ? `(${project.appleKeyId})` : '');
+  console.log('Has Issuer ID:', !!project.appleIssuerId, project.appleIssuerId ? '[SET]' : '');
+  console.log('Has Key ID:', !!project.appleKeyId, project.appleKeyId ? '[SET]' : '');
   console.log('Has P8 File:', !!project.appleP8FileContent, project.appleP8FileContent ? `(${project.appleP8FileContent.length} chars)` : '');
   console.log('\n=== REVENUECAT CREDENTIALS ===');
-  console.log('Has API Key:', !!project.revenueCatApiKey, project.revenueCatApiKey ? `(${project.revenueCatApiKey.substring(0, 15)}...)` : '');
+  console.log('Has API Key:', !!project.revenueCatApiKey);
   console.log('Project ID:', project.revenueCatProjectId || 'MISSING');
   console.log('iOS App ID:', project.revenueCatIosAppId || 'MISSING');
   console.log('\n=== CONFIG ===');

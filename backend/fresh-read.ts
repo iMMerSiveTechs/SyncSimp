@@ -9,7 +9,7 @@ async function freshRead() {
   });
 
   console.log('\n=== FRESH READ ===\n');
-  console.log('RevenueCat API Key:', project?.revenueCatApiKey);
+  console.log('RevenueCat API Key:', project?.revenueCatApiKey ? '[SET]' : '[NOT SET]');
   console.log('Updated At:', project?.updatedAt);
 
   await prisma.$disconnect();

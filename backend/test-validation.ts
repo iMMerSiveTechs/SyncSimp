@@ -129,7 +129,7 @@ async function testValidation() {
 
   // Test 4: RevenueCat API
   console.log('🔑 TEST 4: RevenueCat API');
-  console.log('   API Key:', project.revenueCatApiKey?.substring(0, 20) + '...');
+  console.log('   API Key:', project.revenueCatApiKey ? '[SET]' : '[NOT SET]');
   console.log('   Project ID:', project.revenueCatProjectId);
   console.log('   iOS App ID:', project.revenueCatIosAppId);
 

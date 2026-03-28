@@ -8,7 +8,7 @@ async function testWithNewClient() {
   const before = await freshDb.project.findUnique({
     where: { id: '304ea0c9-019d-425d-8b9f-051de0cdfbc8' }
   });
-  console.log('Current RevenueCat Key:', before?.revenueCatApiKey);
+  console.log('Current RevenueCat Key:', before?.revenueCatApiKey ? '[SET]' : '[NOT SET]');
   console.log('Current Updated At:', before?.updatedAt);
 
   console.log('\nStep 2: Update to test value');
@@ -25,7 +25,7 @@ async function testWithNewClient() {
   const after1 = await freshDb.project.findUnique({
     where: { id: '304ea0c9-019d-425d-8b9f-051de0cdfbc8' }
   });
-  console.log('After update (same client):', after1?.revenueCatApiKey);
+  console.log('After update (same client):', after1?.revenueCatApiKey ? '[SET]' : '[NOT SET]');
   console.log('Updated At:', after1?.updatedAt);
 
   await freshDb.$disconnect();
@@ -35,7 +35,7 @@ async function testWithNewClient() {
   const after2 = await freshDb2.project.findUnique({
     where: { id: '304ea0c9-019d-425d-8b9f-051de0cdfbc8' }
   });
-  console.log('After update (new client):', after2?.revenueCatApiKey);
+  console.log('After update (new client):', after2?.revenueCatApiKey ? '[SET]' : '[NOT SET]');
   console.log('Updated At:', after2?.updatedAt);
 
   await freshDb2.$disconnect();

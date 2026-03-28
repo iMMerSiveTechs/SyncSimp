@@ -17,9 +17,8 @@ async function debugRevenueCat() {
   console.log('🔍 REVENUECAT API KEY DEBUG');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-  console.log('Full API Key:', apiKey);
+  console.log('API Key:', apiKey ? '[SET]' : '[NOT SET]');
   console.log('Key Length:', apiKey.length);
-  console.log('Key Prefix:', apiKey.substring(0, 20));
   console.log('Key Type:', apiKey.startsWith('appl_') ? 'SDK/Public Key' : apiKey.startsWith('sk_') ? 'Secret Key' : 'Unknown');
 
   console.log('\n--- Testing Different API Endpoints ---\n');

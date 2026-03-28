@@ -11,9 +11,9 @@ async function checkFullProject() {
   }
 
   console.log('\n=== FULL PROJECT DATA ===\n');
-  console.log('RevenueCat API Key:', project.revenueCatApiKey);
-  console.log('Apple Issuer ID:', project.appleIssuerId);
-  console.log('Apple Key ID:', project.appleKeyId);
+  console.log('RevenueCat API Key:', project.revenueCatApiKey ? '[SET]' : '[NOT SET]');
+  console.log('Apple Issuer ID:', project.appleIssuerId ? '[SET]' : '[NOT SET]');
+  console.log('Apple Key ID:', project.appleKeyId ? '[SET]' : '[NOT SET]');
   console.log('Apple P8 length:', project.appleP8FileContent?.length);
   console.log('\nUpdated At:', project.updatedAt);
 
