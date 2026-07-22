@@ -168,15 +168,74 @@ function createAppleCredentials(issuerId: string, keyId: string, privateKey: str
 // Note: Authentication is handled by Firebase on the frontend - project data is passed in request body
 sync.post('/run/:projectId', zValidator('json', syncRunRequestSchema, (result, c) => {
   if (!result.success) {
-    const issues = result.error.issues.map(i => `${i.path.join('.')}: ${i.message}`);
-    console.log('[Sync] Request validation failed:', issues.join(', '));
+    // Map failed field paths back to targeted, actionable fix guidance
+    const failedFields = new Set(result.error.issues.map(i => i.path[i.path.length - 1]));
+    console.log('[Sync] Request validation failed for fields:', [...failedFields].join(', '));
+
+    const appleFields = ['appleIssuerId', 'appleKeyId', 'appleP8FileContent'];
+    const revenueCatFields = ['revenueCatApiKey', 'revenueCatProjectId', 'revenueCatIosAppId'];
+
+    if (appleFields.some(f => failedFields.has(f))) {
+      return c.json({
+        error: 'Missing or invalid Apple credentials',
+        fix: {
+          title: 'Add Apple Credentials (Step 1)',
+          steps: [
+            'Go back to Step 1: Credentials',
+            'Enter your Apple Issuer ID (from App Store Connect > Users & Access > Keys)',
+            'Enter your Apple Key ID (10-character code)',
+            'Upload your P8 file (the private key file you downloaded)',
+            'Make sure the API key has "App Manager" permission',
+            'Save and return to Step 4',
+          ],
+          estimatedTime: '5 minutes',
+        },
+      }, 400);
+    }
+
+    if (revenueCatFields.some(f => failedFields.has(f))) {
+      return c.json({
+        error: 'Missing RevenueCat credentials',
+        fix: {
+          title: 'Add RevenueCat Credentials (Step 1 & 2)',
+          steps: [
+            'Go to app.revenuecat.com and select your project',
+            'Get SECRET API Key: Project Settings (gear icon) > API Keys > "Secret API keys" section > + New secret API key > Read & Write access > copy sk_xxx key',
+            'Get Project ID: Click gear icon next to project name > copy "Project ID: proj_xxxxx"',
+            'Get iOS App ID: Apps (left sidebar) > click your iOS app > copy "App ID: app_xxxxx"',
+            'Enter all three values in SyncSimp Step 1 and Step 2',
+            'IMPORTANT: Use the sk_xxx secret key, NOT the appl_xxx public key',
+          ],
+          estimatedTime: '5 minutes',
+        },
+      }, 400);
+    }
+
+    if (failedFields.has('configYaml')) {
+      return c.json({
+        error: 'Missing YAML configuration',
+        fix: {
+          title: 'Configure Products (Step 2)',
+          steps: [
+            'Go to Step 2: Configure Products',
+            'Add at least one subscription product',
+            'Enter product name, price, and trial days (optional)',
+            'Save the configuration',
+            'Return to Step 4 and run sync',
+          ],
+          estimatedTime: '3 minutes',
+        },
+      }, 400);
+    }
+
+    // Fallback for any other validation failure (e.g. missing bundleId)
     return c.json({
       error: 'Invalid request body',
       fix: {
         title: 'Missing Required Fields',
-        steps: issues.map(i => `Fix: ${i}`),
-        estimatedTime: '5 minutes'
-      }
+        steps: result.error.issues.map(i => `${i.path[i.path.length - 1]}: ${i.message}`),
+        estimatedTime: '5 minutes',
+      },
     }, 400);
   }
 }), async (c) => {

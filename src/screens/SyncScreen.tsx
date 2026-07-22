@@ -179,7 +179,7 @@ const SyncScreen = ({ navigation, route }: Props) => {
       console.log(`${LOG_PREFIX} Loading saved error from project`);
       setError(projectData.lastSyncError);
     }
-  }, [projectData?.syncStatus, projectData?.lastSyncError]);
+  }, [projectData?.syncStatus, projectData?.lastSyncError, error]);
 
   // Check if user has premium entitlement on mount
   useEffect(() => {
