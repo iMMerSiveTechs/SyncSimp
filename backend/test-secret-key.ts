@@ -7,14 +7,19 @@ async function testSecretKey() {
     where: { id: '304ea0c9-019d-425d-8b9f-051de0cdfbc8' }
   });
 
-  const apiKey = project?.revenueCatApiKey!;
+  const apiKey = project?.revenueCatApiKey;
+
+  if (!apiKey) {
+    console.error('RevenueCat key is not configured for the selected project.');
+    await freshDb.$disconnect();
+    process.exitCode = 1;
+    return;
+  }
 
   console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('🔑 TESTING SECRET KEY FROM DATABASE');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-  console.log('API Key:', apiKey);
-  console.log('Key Type:', apiKey.startsWith('sk_') ? 'SECRET KEY ✅' : 'Public Key (wrong!)');
 
   console.log('\n--- Testing V1 /projects endpoint ---');
 
