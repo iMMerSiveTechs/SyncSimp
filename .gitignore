@@ -5,6 +5,11 @@ node_modules/
 
 # Environment variables
 .env
+# Catch variant and nested environment files as well.
+.env.*
+!.env.example
+!.env.sample
+!.env.template
 .env.local
 .env.development.local
 .env.test.local
